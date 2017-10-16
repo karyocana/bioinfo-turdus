@@ -1,0 +1,283 @@
+# ! /usr/bin/ksh
+# script para fazer a estatística final do que foi encontrado
+# formato do input: arquivo de saída do compara
+# Usage: estat compara.out genoma.fasta
+# saídas: Por flags! flag.estat
+if [ -z $2 ];
+then
+        echo -ne "\nEsse script faz a análise estatística dos dados finais.\n"
+        echo -ne "Usage: estat compara.out genoma.fasta\n"
+        echo -ne "\nNext time do it right!\n\n"
+        exit
+fi
+loc="/disk05/laurajs/bin/scripts" #### localização dos scripts! Modificar!!! ####
+##### para arretada: loc="/disk05/laurajs/bin/scripts" #####
+pre=`date +%s`
+
+input=$1
+fasta=$2
+insinal=$pre.temp.sinal # arquivo temporário para contagem ocupação com flags
+echo -ne "cagando pro sinal... "
+comando="$loc/compara_estat $input $insinal.out"
+eval $comando
+echo "done"
+#cat $insinal.out | sort -k 2 -n > semsinal
+in=temp.$pre # arquivo temporário para contagem unidades
+flag=(`echo $input | cut -d"." -f 1 | tr "_" "\n"`) #flags presentes
+let "nf=${#flag[@]}" #number of flags
+onde=(`grep -n ">" $fasta | cut -d":" -f 1`) #linhas de início dos scaffolds no arquivo fasta
+let "nonde=${#onde[@]}"
+#calculando pb para todo o genoma
+echo -ne "quantos pb tem nesse genoma? "
+pbtotal=(`grep -v ">" $fasta | tr -d '[[:space:]]' | wc -c`)
+echo $pbtotal
+declare -a nome comb
+for((i=0;i<nf;i++));
+do
+	comb[$i]="grep \""${flag[$i]}"\""
+	nome[$i]=${flag[$i]}
+	num[$i]=$i
+done
+let "numcomb=nf-1"
+for((quant=1;quant<=nf;quant++));
+do
+	if [ $quant -gt 1 ];
+	then
+		declare -a a b
+		for((l=0;l<numcomb+1;l++));
+		do
+        		a[$l]=${comb[$l]}
+			b[$l]=${nome[$l]}
+			numn[$l]=${num[$l]}
+		done
+		ind=0
+		for((l=0;l<numcomb;l++));
+		do
+			for((m=numn[l]+1;m<nf;m++));
+			do
+				comb[$ind]=" "${a[$l]}" | grep \""${flag[$m]}"\""
+				nome[$ind]=${b[$l]}"_"${flag[$m]}
+				num[$ind]=$m
+				let "ind=ind+1"
+			done
+		done
+		let "numcomb=ind-1"
+		if [ $numcomb -eq -1 ];
+		then
+			$numcomb=0
+		fi
+		unset a b
+	fi
+	let "group=7+quant"
+	for((i=0;i<=numcomb;i++)); #nf
+	do
+		echo "flag(s)" ${nome[$i]}
+		out=${nome[$i]}.estat
+		comando="grep -v \"#\" $input | ${comb[$i]} | awk '{if(NF==$group) print \$0}' > $in"
+		eval $comando
+		let "groupn=group-1"
+		comando="grep -v \"#\" $insinal.out | ${comb[$i]} | awk '{if(NF==$groupn) print \$0}' > $insinal"
+                eval $comando
+                octotal=0
+                unip=0
+                unic=0
+                unit=0
+		number=(`wc -l $in`)
+		if [ $number -gt 0 ];
+		then
+			echo -ne "scaffold\t\t\t#unidades+\t#unidadesC\t#unidadesT\tocupação\t%ocupação\n" > $out
+			declare -a scaffolds
+                	scaffolds=(`grep -v "#" $in | awk '{print $1}' | uniq`)
+                	let "nsca=${#scaffolds[@]}"
+			# por scaffold
+			for((j=0;j<nsca;j++));
+			do
+				let "number=j+1"
+				echo -ne "scaffold" $number"/"$nsca"\t"
+				countp=0 # unidades +
+				countc=0 # unidades C
+				countt=0 # unidades totais
+				oc=0 #ocupação
+				n1=(`grep -n ${scaffolds[$j]} $fasta | cut -d":" -f 1`)
+				next=(`echo ${onde[@]} | tr -s " " "\n" | grep -n $n1 | cut -d":" -f 1`)
+				let "n1=n1+1"
+				if [ $next -ne $nonde ];
+				then
+					let "n2=onde[next]-1"
+	        	                if [ $n1 -ne $n2 ];
+	        	                then
+	        	                        total=(`sed -n "$n1, $n2 p" $fasta | tr -d '[[:space:]]' | wc -c`)
+	        	                else
+	        	                        total=(`sed -n "$n2 p" $fasta | tr -d '[[:space:]]' | wc -c`)
+	        	                fi
+				else
+	        	                total=(`sed -n "$n1"',$p' $fasta | tr -d '[[:space:]]' | wc -c`)
+				fi
+				# para a ocupação (contagem de pb)
+				declare -a bngs ends
+				bngs=(`grep -v "#" $insinal | grep ${scaffolds[$j]} | sort -k 2 -n | awk '{print $2}'`)
+				ends=(`grep -v "#" $insinal | grep ${scaffolds[$j]} | sort -k 2 -n | awk '{print $3}'`)
+				# para as unidades
+				declare -a bngp endp bngc
+			        bngp=(`grep -v "#" $in | grep ${scaffolds[$j]} | awk '{if ($4 == "+") print $0}' | sort -k 2 -n | awk '{print $2}'`)
+			        endp=(`grep -v "#" $in | grep ${scaffolds[$j]} | awk '{if ($4 == "+") print $0}' | sort -k 2 -n | awk '{print $3}'`)
+				bngc=(`grep -v "#" $in | grep ${scaffolds[$j]} | awk '{if ($4 == "C") print $0}' | sort -k 2 -n | awk '{print $2}'`)
+                	        endc=(`grep -v "#" $in | grep ${scaffolds[$j]} | awk '{if ($4 == "C") print $0}' | sort -k 2 -n | awk '{print $3}'`)
+			        let "nlp=${#bngp[@]}"
+				let "nlc=${#bngc[@]}"
+				let "nls=${#bngs[@]}"
+				te=0
+				med2=0
+				#percorrendo todas as saidas desse scaffold para unidades de sinal positivo
+				for((k=0;k<nlp;k++));
+                	        do
+                	                if [ $k -gt 0 ];
+                	                then
+                	                        let "por=endp[k-1]+1"
+                	                        if [ ${bngp[$k]} -ne $por ];
+                	                        then
+                       	                        	let "countp=countp+1"
+                       	                 	fi
+                       	        	else
+                       	                	let "countp=countp+1"
+                       	         	fi
+                       	 	done
+				#percorrendo todas as saidas desse scaffold para unidades de sinal negativo
+				for((k=0;k<nlc;k++));
+                	        do
+                	                if [ $k -gt 0 ];
+                	                then
+                	                        let "por=endc[k-1]+1"
+                	                        if [ ${bngc[$k]} -ne $por ];
+                	                        then
+                	                                let "countc=countc+1"
+                	                        fi
+                	                else
+                	                        let "countc=countc+1"
+                	                fi
+                	        done
+				let "countt=countc+countp"
+				#percorrendo todas as saidas desse scaffold para ocupação
+				for((k=0;k<nls;k++));
+				do
+					let "oc=oc+ends[k]-bngs[k]+1"
+				done
+				poc=$(echo "scale=3; $oc*100/$total" | bc)
+				echo $poc" %"
+	        		unset bngs ends bngp endp bngc endc
+				echo -ne "${scaffolds[$j]}\t$countp\t\t$countc\t\t$countt\t\t$oc\t\t$poc\n" >> $out
+				let "octotal=octotal+oc"
+				let "unip=unip+countp"
+				let "unic=unic+countc"
+				let "unit=unit+countt"
+			done
+			poct=$(echo "scale=3; $octotal*100/$pbtotal" | bc)
+			echo -ne "total\t\t\t\t$unip\t\t$unic\t\t$unit\t\t$octotal\t\t$poct\n" >> $out
+			unset scaffolds
+			rm $insinal
+		else
+			echo "nenhum resultado"
+		fi
+		rm $in
+	done
+done
+unset nome comb
+# preparando o arquivo geral
+echo "geral"
+out=geral.estat
+octotal=0
+unip=0
+unic=0
+unit=0
+echo "Arquivo com as informações finais feito a partir do" $input > $out
+echo -ne "scaffold\t\t\t#unidades+\t#unidadesC\t#unidadesT\tocupação\t%ocupação\n" >> $out
+declare -a scaffolds
+scaffolds=(`grep -v "#" $input | awk '{print $1}' | uniq`)
+let "nsca=${#scaffolds[@]}"
+# por scaffold
+for((j=0;j<nsca;j++));
+do
+	let "number=j+1"
+	echo -ne "scaffold" $number"/"$nsca"\t"
+	countp=0 # unidades +
+	countc=0 # unidades C
+	countt=0 # unidades totais
+	oc=0 #ocupação
+	n1=(`grep -n ${scaffolds[$j]} $fasta | cut -d":" -f 1`)
+	next=(`echo ${onde[@]} | tr -s " " "\n" | grep -n $n1 | cut -d":" -f 1`)
+	let "n1=n1+1"
+	if [ $next -ne $nonde ];
+	then
+		let "n2=onde[next]-1"
+		if [ $n1 -ne $n2 ];
+		then
+			total=(`sed -n "$n1, $n2 p" $fasta | tr -d '[[:space:]]' | wc -c`)
+		else
+			total=(`sed -n "$n2 p" $fasta | tr -d '[[:space:]]' | wc -c`)
+		fi
+	else
+		total=(`sed -n "$n1"',$p' $fasta | tr -d '[[:space:]]' | wc -c`)
+	fi
+	# para a ocupação (contagem de pb)
+	declare -a bngs ends
+	bngs=(`grep -v "#" $insinal.out | grep ${scaffolds[$j]} | sort -k 2 -n | awk '{print $2}'`)
+	ends=(`grep -v "#" $insinal.out | grep ${scaffolds[$j]} | sort -k 2 -n | awk '{print $3}'`)
+	# para as unidades
+	declare -a bngp endp bngc
+	bngp=(`grep -v "#" $input | grep ${scaffolds[$j]} | awk '{if ($4 == "+") print $0}' | sort -k 2 -n | awk '{print $2}'`)
+	endp=(`grep -v "#" $input | grep ${scaffolds[$j]} | awk '{if ($4 == "+") print $0}' | sort -k 2 -n | awk '{print $3}'`)
+	bngc=(`grep -v "#" $input | grep ${scaffolds[$j]} | awk '{if ($4 == "C") print $0}' | sort -k 2 -n | awk '{print $2}'`)
+	endc=(`grep -v "#" $input | grep ${scaffolds[$j]} | awk '{if ($4 == "C") print $0}' | sort -k 2 -n | awk '{print $3}'`)
+	let "nlp=${#bngp[@]}"
+	let "nlc=${#bngc[@]}"
+	let "nls=${#bngs[@]}"
+	te=0
+	med2=0
+	#percorrendo todas as saidas desse scaffold para unidades de sinal positivo
+	for((k=0;k<nlp;k++));
+	do
+		if [ $k -gt 0 ];
+		then
+			let "por=endp[k-1]+1"
+			if [ ${bngp[$k]} -ne $por ];
+			then
+				let "countp=countp+1"
+			fi
+		else
+			let "countp=countp+1"
+		fi
+	done
+	#percorrendo todas as saidas desse scaffold para unidades de sinal negativo
+	for((k=0;k<nlc;k++));
+	do
+		if [ $k -gt 0 ];
+		then
+			let "por=endc[k-1]+1"
+			if [ ${bngc[$k]} -ne $por ];
+			then
+				let "countc=countc+1"
+			fi
+		else
+			let "countc=countc+1"
+		fi
+	done
+	let "countt=countc+countp"
+	#percorrendo todas as saidas desse scaffold para ocupação
+	for((k=0;k<nls;k++));
+	do
+		let "oc=oc+ends[k]-bngs[k]+1"
+	done
+	poc=$(echo "scale=3; $oc*100/$total" | bc)
+	echo $poc" %"
+	unset bngs ends bngp endp bngc endc
+	echo -ne "${scaffolds[$j]}\t$countp\t\t$countc\t\t$countt\t\t$oc\t\t$poc\n" >> $out
+	let "octotal=octotal+oc"
+	let "unip=unip+countp"
+	let "unic=unic+countc"
+	let "unit=unit+countt"
+done
+poct=$(echo "scale=3; $octotal*100/$pbtotal" | bc)
+echo -ne "total\t\t\t\t$unip\t\t$unic\t\t$unit\t\t$octotal\t\t$poct\n" >> $out
+unset scaffolds
+rm $insinal.out
+echo "done!"

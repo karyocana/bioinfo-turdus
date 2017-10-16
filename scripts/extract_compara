@@ -1,0 +1,171 @@
+#########################################  Laura Joana SILVA LOPES, Abr 2016 #############################################
+# ! /usr/bin/ksh # para ter o arquivo colorido em VIM
+# script para extrair em um arquivo fasta as sequências encontradas com o compara
+# Usagem: extract_compara compara.csv genoma.fasta [corte]
+# Se quiser apenas as sequências maiores que um valor de corte inclua esse valor ao final da linha de comando.
+# O valor default é zero, ou seja, todas as sequências sao incluídas.
+# Saídas: arquivo fasta com as seqs com nome falso + arquivo com nomes reais
+# nomes reais: scaffold|início|final|sinal|nested
+##########################################################################################################################
+if [ -z $2 ];
+then
+        echo -ne "\nThis script runs extract_compara.\n"
+        echo -ne "Usage: extract_compara compara.csv genoma.fasta [corte]\n\nNext time do it right!\n\n"
+        exit
+fi
+dir=`pwd`
+in=$1
+genome=$2
+if [ -z $3 ];
+then
+	corte=0 # valor default
+else
+	corte=$3
+fi
+nome=`echo $in | rev | cut -d'/' -f1 | rev | cut -d'.' -f1`
+if [ $corte -gt 0 ];
+then
+	# existe corte!
+	# arquivos das seqs pequenas
+	fasta_peq=$dir"/"$nome".peq.fasta"
+	if [ -f $fasta_peq ];
+	then
+	        rm $fasta_peq
+	fi
+	rela_sca_peq=$dir"/"$nome".peq.nomes"
+	if [ -f $rela_sca_peq ];
+	then
+	        rm $rela_sca_peq
+	fi
+	# arquivos das seqs grandes (PA)
+	fasta=$dir"/"$nome".pa.fasta"
+	if [ -f $fasta ];
+	then
+        	rm $fasta
+	fi
+	rela_sca=$dir"/"$nome".pa.nomes"
+	if [ -f $rela_sca ];
+	then
+	        rm $rela_sca
+	fi
+else
+	# nao existe corte!
+	fasta=$dir"/"$nome".fasta"
+	if [ -f $fasta ];
+	then
+        	rm $fasta
+	fi
+	rela_sca=$dir"/"$nome".nomes"
+	if [ -f $rela_sca ];
+	then
+	        rm $rela_sca
+	fi
+fi
+insca=$dir"/"$nome".temp.sca"
+scafile=$dir"/"$nome".temp.file"
+sca=(`awk '{print $1}' $in | grep -v "#" | uniq`)
+let "nsca=${#sca[@]}"
+echo "Sequências encontradas em $nsca scaffolds diferentes"
+gsca=(`grep ">" $genome | tr -d '>' | cut -d" " -f1`)
+lines=(`grep -n ">" $genome | cut -d ':' -f 1 | tr -s '\n'`)
+let "ngsca=${#gsca[@]}"
+echo "Total de $ngsca scaffolds no arquivo fasta"
+last=$(grep -c "" $genome)
+for((i=0;i<ngsca;i++));
+do
+	k=0
+	for((j=0;j<nsca;j++));
+	do
+		if [[ ${sca[$j]} == ${gsca[$i]} ]];
+		then
+			index[$i]=$j
+			k=1
+			break
+		fi
+	done
+	if [ $k -eq 0 ];
+	then
+		index[$i]=-1
+	fi
+done
+for((i=0;i<ngsca;i++)); # for para andar nos scaffolds
+do
+	let "onde=i+1"
+	echo -ne "\r $onde"
+	if [ ${index[$i]} -ne -1 ];
+	then
+		let "ind1=lines[i]+1"
+		let "ind2=lines[i+1]-1"
+		if [ $ind2 -eq -1 ];
+		then
+			let "ind2=last"
+		fi
+		let "quant=ind2-ind1+1"
+		head -$ind2 $genome | tail -$quant | fold -w1 | sed 's/\(.\)/\1\n/g' | sed '/^$/d' > $scafile
+		tamarq=`wc -l $scafile | cut -d' ' -f1`
+		awk '{if ($1 == "'${sca[${index[$i]}]}'") print $0}' $in | sort -k 2 -n > $insca # arquivo com mesmo scaffold
+		bng=(`grep -v "#" $insca | awk '{print $2}'`)
+		end=(`grep -v "#" $insca | awk '{print $3}'`)
+		sin=(`grep -v "#" $insca | awk '{print $4}'`)
+		nest=(`grep -v "#" $insca | awk '{print $7}'`)
+		let "nseq=${#bng[@]}"
+		for((j=0;j<nseq;j++));
+		do
+			if [ ${nest[$j]} == "----" ];
+			then
+				nest[$j]="N"
+			fi
+		done
+		let "lim=nseq/2"
+		for((j=0;j<lim;j++));
+		do
+			realname="${sca[${index[$i]}]}|${bng[$j]}|${end[$j]}|${sin[$j]}|${nest[$j]}"
+			falsename="scaffold"$i"_"$j
+			let "tam=end[j]-bng[j]+1"
+			if [ $tam -le $corte ];
+			then
+				# seqs pequenas
+				echo -ne "$realname\t$falsename\n" >> $rela_sca_peq
+				echo ">"$falsename >> $fasta_peq
+				head -${end[$j]} $scafile | tail -$tam | tr -d '\n' | sed -e "s/.\{60\}/&\n/g" >> $fasta_peq # imprime seq
+				echo -ne "\n" >> $fasta_peq # imprime seq
+			else
+				# seqs grandes
+				echo -ne "$realname\t$falsename\n" >> $rela_sca
+                                echo ">"$falsename >> $fasta
+                                head -${end[$j]} $scafile | tail -$tam | tr -d '\n' | sed -e "s/.\{60\}/&\n/g" >> $fasta # imprime seq
+                                echo -ne "\n" >> $fasta # imprime seq
+			fi
+		done
+		for((j=lim;j<nseq;j++));
+		do
+			realname="${sca[${index[$i]}]}|${bng[$j]}|${end[$j]}|${sin[$j]}|${nest[$j]}"
+			falsename="scaffold"$i"_"$j
+			let "tam=end[j]-bng[j]+1"
+			let "tailnum=tamarq-bng[j]+1"
+			if [ $tam -le $corte ];
+			then
+                                # seqs pequenas
+				echo -ne "$realname\t$falsename\n" >> $rela_sca_peq
+				echo ">"$falsename >> $fasta_peq
+				tail -$tailnum $scafile | head -$tam | tr -d '\n' | sed -e "s/.\{60\}/&\n/g" >> $fasta_peq # imprime seq
+	                        echo -ne "\n" >> $fasta_peq # imprime seq
+
+                        else
+                                # seqs grandes
+				echo -ne "$realname\t$falsename\n" >> $rela_sca
+                                echo ">"$falsename >> $fasta
+                                tail -$tailnum $scafile | head -$tam | tr -d '\n' | sed -e "s/.\{60\}/&\n/g" >> $fasta # imprime seq
+                                echo -ne "\n" >> $fasta # imprime seq
+                        fi
+		done
+		rm $scafile $insca
+	fi
+done
+sed -i '/^$/d' $fasta
+if [ $corte -gt 0 ];
+then
+	sed -i '/^$/d' $fasta_peq
+fi
+echo
+echo "Tudo extraído!"

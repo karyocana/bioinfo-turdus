@@ -1,0 +1,23 @@
+# ! /usr/bin/ksh
+# script to separate to run Repex and extract_repex
+# Usage: run_repex fasta_file pt pl ps
+if [ -z $4 ];
+then
+        echo -ne "\nThis script runs Repex and extract_repex.\n"
+        echo -ne "Usage: run_repex fasta_file option_t option_l option_s\n\nNext time do it right!\n\n"
+        exit
+fi
+dir=`pwd`
+out=$dir"/tudo_repex.fa"
+fasta=$1
+ident=$fasta.identical
+sim=$fasta.similar
+echo -ne "\nStarted! "
+date
+echo -ne "Running: Repex... "
+/usr/local/RepEx/src/bin/repex -m n -t $2 -l $3 -s $4 -c b -f $fasta
+echo -ne "extract_repex... "
+/disk05/laurajs/bin/scripts/extract_repex $ident $sim $out
+echo -ne "DONE!\n"
+echo -n "Ended! "
+date

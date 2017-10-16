@@ -1,0 +1,31 @@
+# ! /usr/bin/ksh
+# script to run all the genome tools commands that we need!
+# Usage: run_genometools fasta_input tRNA_file
+if [ -z $2 ];
+then
+        echo -ne "\nUsage: run_genometools fasta_input tRNA_file\n\nNext time do it right!\n\n"
+        exit
+fi
+dir=`pwd`
+fasta=$dir/$1
+trna=$dir/$2
+pre=$dir"/new"
+index=$pre.fasta
+gff=$pre.gff
+sorted=$pre.gff3
+ltrs=$pre"_ltrs"
+echo -ne "\nStarted "
+date
+echo -n "Running:"
+echo -n " suffixerator... "
+/home/programs/genometools-1.5.9/bin/gt suffixerator -db $fasta -indexname $index -tis -suf -lcp -des -sds -dna -ssp  &> result_suffixerator
+echo -n "ltrharvest... "
+/home/programs/genometools-1.5.9/bin/gt ltrharvest -index $index -gff3 $gff &> result_ltrharvest
+echo -n "sorting... "
+/home/programs/genometools-1.5.9/bin/gt gff3 -sort $gff > $sorted
+echo -n "ltrdigest... "
+/home/programs/genometools-1.5.9/bin/gt ltrdigest -pptlen 10 50 -trnas $trna -hmms /home/programs/genometools-1.5.9/HMM/*.hmm -outfileprefix $ltrs $sorted $index > digest_result.gff
+echo "DONE!"
+echo -ne "Ended "
+date
+echo

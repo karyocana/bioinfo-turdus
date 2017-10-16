@@ -1,0 +1,66 @@
+# ! /usr/bin/ksh
+# Script para criar os jsons
+# Usage: makejson csv genome
+# imprime a seq e os programas
+
+# arquivos
+csv=$1
+genome=$2
+out="json.out"
+if [ -f $out ];
+then
+        rm $out
+fi
+# pegando sequências
+flag=(`grep -v "#" $csv | awk '{$1=$2=$3=$4=$5=$6=""; print $0}'`)
+sca=(`grep -v "#" $csv | awk '{print $1}'`)
+bng=(`grep -v "#" $csv | awk '{print $2}'`)
+end=(`grep -v "#" $csv | awk '{print $3}'`)
+sin=(`grep -v "#" $csv | awk '{print $4}'`)
+conf=(`grep -v "#" $csv | awk '{print $5}'`)
+fam=(`grep -v "#" $csv | awk '{print $6}'`)
+let "nseq=${#bng[@]}"
+echo "Sequências encontradas lidas..."
+# pegando os scaffolds no genoma
+scaffold=(`grep ">" $genome | tr -d '>'`)
+lines=(`grep -n ">" $genome | cut -d ':' -f 1 | tr -s '\n'`)
+let "nsca=${#lines[@]}"
+last=$(grep -c "" $genome)
+echo "Scaffolds encontrados no genoma: $nsca"
+# imprimindo o que é de interesse
+echo -ne "{\"length\":825,\"ntData\":[" >> $out # início do json (abre json e ntData)
+echo "Andando pelos scaffolds"
+nsca=999
+for((i=998;i<nsca;i++)); # for para andar nos scaffolds
+do
+	echo -ne "\r $i"
+        let "ind1=lines[i]+1"
+        let "ind2=lines[i+1]-1"
+        if [ $ind2 -eq -1 ];
+        then
+                let "ind2=last"
+        fi
+        let "quant=$ind2-ind1+1"
+	seq=(`head -$ind2 $genome | tail -$quant | fold -w1`) # separa o sacaffold em um array
+	indj=0
+	for((j=0;j<nseq;j++)); # anda nas seqs encontradas
+	do
+		if [[ ${sca[$j]} == ${scaffold[$i]} ]];
+		then
+			let "tam=end[j]-bng[j]+1"
+			echo -ne "[\"${seq[@]:${bng[$j]}:$tam}\"" | tr -d ' ' >> $out # abre seq
+			echo -ne ",[" >> $out # abre flags
+			#flags entre aspas e separadas por vírgula
+			echo -ne "\"${flag[$indj]}\"" >> $out
+			for((l=indj+1;l<indj+conf[j];l++));
+                        do
+                        	echo -ne ",\"${flag[$l]}\"" >> $out
+                        done
+			echo -ne "]]," >> $out # fecha flags e seq
+		fi
+		let "indj=indj+conf[j]"
+	done
+	echo
+done
+echo -ne "]}" >> $out # fecha ntData e json
+echo -ne "\tDone!\n\t=)\n\n"

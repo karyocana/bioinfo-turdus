@@ -1,0 +1,19 @@
+###### como rodar programas em paralelo e esperar todos acabarem!
+# ! /usr/bin/ksh # para ter o arquivo colorido em VIM
+# Nathalia, espero que facilite suas análises! Use quando for rodar uma série de tarefas para diferentes arquivos!
+# Todas as linhas de comando que terminam com & rodam em paralelo e em background. Isso significa que vc deve
+# direcionar os outs (comando &>) se não vai virar uma bagunça! O wait espera que todos os comandos anteriores terminem
+# para continuar o script! O comando final date imprime a data que acabou. Use para ter noção do tempo total.
+# Modifique a cada vez que for usar e divirta-se!
+loc="/disk05/laurajs/bin/scripts" # localização dos scripts
+$loc/compara_geral MH_RM.csv RO.csv &> MH_RM_RO.log &
+$loc/compara_geral RM_RO.csv MH.csv &> RM_RO_MH.log &
+$loc/compara_geral RO_MH.csv RM.csv &> RO_MH_RM.log &
+wait # espera que todas as linhas anteriores terminem para seguir em frente
+echo "acabou o compara!"
+$loc/find_problem MH_RM_RO.csv &> MH_RM_RO.prob &
+$loc/find_problem RM_RO_MH.csv &> RM_RO_MH.prob &
+$loc/find_problem RO_MH_RM.csv &> RO_MH_RM.prob &
+wait
+echo "acabou tudo!!!"
+date

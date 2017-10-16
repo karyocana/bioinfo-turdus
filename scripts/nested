@@ -1,0 +1,174 @@
+#########################################  Laura Joana SILVA LOPES, Mar 2016 #############################################
+# ! /usr/bin/ksh # para ter o arquivo colorido em VIM
+# script para caracterizar as sequências encontradas pelo one-code como nested I, S ou C
+# I = inserted | S = superposition | C = contiguous | ---- = nada
+# nested são classificados como contiguous até npb pares de bases de separação. (default npb=10)
+# Usagem: nested arq (arq = arquivo flag.csv com as saídas do one-code unidas pelo extract_one-code)
+# saída: scaffold begin end sinal conf familias nested flags
+##########################################################################################################################
+echo "início nested"; date ; echo
+if [ -z $1 ];
+then
+        echo -ne "\nThis script runs nested.\n"
+        echo -ne "Usage: nested arq\n\nNext time do it right!\n\n"
+        exit
+fi
+# localização dos scripts | para arretada: loc="/disk05/laurajs/bin/scripts" #
+loc="/disk05/laurajs/bin/scripts"
+dir=`pwd`
+in=$1
+flagfix=(`grep -v "#" $in | head -1 | awk '{print $8}' | cut -d'.' -f1`)
+out=$dir"/"$flagfix"_"nested.csv
+pre=`date +%s`
+temp=$pre.$flagfix.temp
+tempout=$pre.$flagfix.temp.out
+if [[ $in == $tempout ]];
+then
+        sleep 1
+	pre=`date +%s`
+	temp=$pre.$flagfix.temp
+	tempout=$pre.$flagfix.temp.out
+fi
+if [ -f $out ];
+then
+        rm $out
+fi
+echo "input: " $dir"/"$in
+echo "resultados: " $tempout
+echo -ne "#scaffold\tbegin\tend\tsinal\tconfiança\tfamília(s)\tNESTED\tflag(s)\n" > $tempout
+echo "salvo arquivo temporário"
+# pegando scaffolds
+sca=(`awk '{print $1}' $in | grep -v "#" | uniq`)
+let "nsca=${#sca[@]}"
+let "gegr=nsca-1"
+outsca=$pre.$flagfix.temp.sca
+insca=sca.temp.$flagfix.$pre # arquivo temporário
+flag=$flagfix.1
+# Por scaffold
+for((s=0;s<nsca;s++));
+do
+	# arquivo com mesmo scaffold organizados | sem linhas idênticas!
+	awk '{if ($1 == "'${sca[$s]}'") print $0}' $in | sort -k 2 -n | uniq > $insca
+	echo -ne ${sca[$s]} "\t" ; date
+        declare -a bng end sin fam
+	# pegando sequências
+	bng=(`grep -v "#" $insca | awk '{print $2}'`)
+	end=(`grep -v "#" $insca  | awk '{print $3}'`)
+	sin=(`grep -v "#" $insca  | awk '{print $4}'`)
+	fam=(`grep -v "#" $insca  | awk '{print $6}'`)
+	let "nseq=${#bng[@]}" # número de sequências neste scaffold
+	k=0
+	declare -a list
+	jini=0
+	# Comparando coordenadas 2 a 2:
+	for((i=0;i<nseq;i++));
+	do
+		let "jini=i+1"
+		for((j=jini;j<nseq;j++));
+		do
+####################     condição que garante que não haverá nenhuma sobreposição a partir desta sequência, #############
+####################     visto que o arquivo é ordenado de acordo com bng! Este é o corte final! 	    #############
+			let "ok=end[i]+10" # corte final +10 por causa de contoguous
+			if [ ${bng[$j]} -gt $ok ];
+			then
+				j=$nseq
+			else
+################################################# voltando a concatenação ###############################################
+achou=0
+# sequências iguais | classificação: I
+if [ ${bng[$i]} -eq ${bng[$j]} ] && [ ${end[$i]} -eq ${end[$j]} ];
+then
+#	echo ${bng[$i]} ${bng[$j]} ${end[$i]} ${end[$j]} "iguais"
+	echo "ATENÇÃO! Encontradas duas sequências iguais não unidas pelo one-code!"
+	echo -ne "posição:" ${bng[$i]} ${end[$i]} "\nsinais:" ${sin[$i]} ${sin[$j]} "\nfamílias:" ${fam[$i]} ${fam[$j]}"\n"
+	cla="I"
+	achou=1
+fi
+# sobreposição com início igual | classificação: I
+if [ ${bng[$i]} -eq ${bng[$j]} ] && [ ${end[$i]} -ne ${end[$j]} ];
+then
+	#echo "início igual" ${bng[$i]} $i $j
+	cla="I"
+	achou=1
+fi
+# sobreposição com final igual | classificação: I
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -eq ${end[$j]} ];
+then
+	#echo "final igual" ${end[$i]} $i $j
+        cla="I"
+	achou=1
+fi
+#pedaços colados | classificação: C
+let "teste=${end[$i]}+10"
+if [ ${bng[$j]} -le $teste ] && [ ${bng[$j]} -gt ${end[$i]} ];
+then
+	#echo "contiguous" ${end[$i]} ${bng[$j]} $i $j
+        cla="C"
+	achou=1
+fi
+# seq j dentro de seq i | classificação: I
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -gt ${end[$j]} ];
+then
+	#echo "dentro" ${bng[$i]} ${bng[$j]} $i $j
+        cla="I"
+	achou=1
+fi
+# sobreposição de um pedaço | classificação: S
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -lt ${end[$j]} ] && [ ${bng[$j]} -le ${end[$i]} ];
+then
+	#echo "pedaço" ${bng[$i]} ${bng[$j]} $i $j
+        cla="S"
+	achou=1
+fi
+if [[ $achou -eq 1 ]];
+then
+#	echo ${bng[$i]} ${bng[$j]} ${end[$i]} ${end[$j]} "achou"
+        if [[ " ${list[*]} " == *" $i "* ]];
+        then
+		clai=(`awk '{if (($4 == "'${sin[$i]}'")&&($2 == "'${bng[$i]}'")&&($3 == "'${end[$i]}'")) print $7}' $outsca`)
+		n=(`awk '{if (($4 == "'${sin[$i]}'")&&($2 == "'${bng[$i]}'")&&($3 == "'${end[$i]}'")) print NR}' $outsca`)
+		sed ''$n'd' $outsca > $temp
+		mv $temp $outsca
+		clai=(`echo $clai$cla | fold -w1 | sort | uniq | tr -d "\n"`)
+		echo -ne "${sca[$s]}\t${bng[$i]}\t${end[$i]}\t${sin[$i]}\t1\t${fam[$i]}\t$clai\t$flag\n">> $outsca
+	else
+		echo -ne "${sca[$s]}\t${bng[$i]}\t${end[$i]}\t${sin[$i]}\t1\t${fam[$i]}\t$cla\t$flag\n">> $outsca
+		let "list[k]=i"
+		let "k=k+1"
+	fi
+	if [[ " ${list[*]} " == *" $j "* ]];
+        then
+                clai=(`awk '{if (($4 == "'${sin[$j]}'")&&($2 == "'${bng[$j]}'")&&($3 == "'${end[$j]}'")) print $7}' $outsca`)
+                n=(`awk '{if (($4 == "'${sin[$j]}'")&&($2 == "'${bng[$j]}'")&&($3 == "'${end[$j]}'")) print NR}' $outsca`)
+                sed ''$n'd' $outsca > $temp
+                mv $temp $outsca
+		clai=(`echo $clai$cla | fold -w1 | sort | uniq | tr -d "\n"`)
+                echo -ne "${sca[$s]}\t${bng[$j]}\t${end[$j]}\t${sin[$j]}\t1\t${fam[$j]}\t$clai\t$flag\n">> $outsca
+        else
+                echo -ne "${sca[$s]}\t${bng[$j]}\t${end[$j]}\t${sin[$j]}\t1\t${fam[$j]}\t$cla\t$flag\n">> $outsca
+                let "list[k]=j"
+                let "k=k+1"
+        fi
+fi
+###################################### fim concatenação diferente ###########################################
+			fi
+		done
+	done
+	for((i=0;i<nseq;i++));
+	do
+		if [[ " ${list[*]} " != *" $i "* ]];
+		then
+			echo -ne "${sca[$s]}\t${bng[$i]}\t${end[$i]}\t${sin[$i]}\t1\t${fam[$i]}\t----\t$flag\n">> $outsca
+		fi
+	done
+	rm $insca
+	cat $outsca | sort -k 2 -n >> $tempout
+	rm $outsca
+	unset list
+	unset bng end sin fam
+	echo -ne "Terminado o scaffold" $s"/"$gegr "\t"
+	date
+done
+cat $tempout > $out
+echo -ne "\noutput: "$out"\nfim do script nested\n\n"
+rm $tempout

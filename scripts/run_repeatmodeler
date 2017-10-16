@@ -1,0 +1,19 @@
+# ! /usr/bin/ksh
+# script to build the database and run RepeatModeler
+# Usage: run_repeatmodeler files_prefix fasta_file output_file
+if [ -z $1 ];
+then
+        echo -ne "\nThis script runs RepeatModeler.\n"
+        echo -ne "Usage: run_repeatmodeler fasta_file\n\nNext time do it right!\n\n"
+        exit
+fi
+fasta=$1
+echo -ne "\nStarted! "
+date
+echo "Building $pre database..."
+/usr/local/RepeatModeler-open-1.0.10/BuildDatabase -name pre $fasta
+echo -ne "Running RepeatModeler\n"
+/usr/local/RepeatModeler-open-1.0.10/RepeatModeler -database pre $fasta >& $fasta.out
+echo -n "Ended! "
+date
+echo

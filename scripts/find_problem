@@ -1,0 +1,80 @@
+#########################################  Laura Joana SILVA LOPES, Jan 2016 #############################################
+# ! /usr/bin/ksh # para ter o arquivo colorido em VIM
+# script pra ver se deu algum problema clássico no nested, filtro ou compara
+# detecta:
+# 1) número de colunas diferente do esperado
+# 2) sequências idênticas no caso do arquivo nested
+# 3) sequências de mesmo sinal sobrepostas no caso filtro ou compara
+# usagem: find_problem arq
+##########################################################################################################################
+echo "find_problem"
+echo "input:" $1
+date
+in=$1
+sca=(`awk '{print $1}' $in | grep -v "#" | uniq`)
+let "nsca=${#sca[@]}"
+pre=`date +%s`
+insca=$in.temp.$pre # arquivo temporário
+# Por scaffold
+for((s=0;s<nsca;s++));
+do
+	marcau=0
+        grep -v "#" $in | awk '{if ($1 == "'${sca[$s]}'") print $0}' | sort -k 2 -n > $insca # arquivo do scaffold
+        echo ${sca[$s]}
+        declare -a bng end sin
+        # pegando sequências
+        bng=(`grep -v "#" $insca | awk '{print $2}'`)
+        end=(`grep -v "#" $insca  | awk '{print $3}'`)
+        sin=(`grep -v "#" $insca  | awk '{print $4}'`)
+	conf=(`grep -v "#" $insca  | awk '{print $5}'`)
+	let "nseq=${#bng[@]}" # número de sequências neste scaffold
+        jini=0
+        # Comparando coordenadas 2 a 2:
+        for((i=0;i<nseq;i++));
+        do
+		let "line=i+1"
+		fds=(`sed ''$line'!d' $insca | awk '{print NF}'`)
+		let "cfds=7+conf[i]"
+		if [ $fds -ne $cfds ];
+		then
+			echo "esperadas" $cfds "colunas, encontradas" $fds
+			sed ''$line'!d' $insca
+		fi
+                let "jini=i+1"
+                for((j=jini;j<nseq;j++));
+                do
+                        if [ ${bng[$j]} -gt ${end[$i]} ];
+                        then
+                                j=$nseq
+                        else
+				if [ ${sin[$i]} == ${sin[$j]} ];
+				then
+#########################################################################################################################
+if [[ $1 == *"nested"* ]]
+then
+	if [ ${bng[$i]} -eq ${bng[$j]} ] && [ ${end[$i]} -eq ${end[$j]} ];
+	then
+	        echo "sequências idênticas"
+	        awk '{if (($4 == "'${sin[$i]}'")&&($2 == "'${bng[$i]}'")&&($3 == "'${end[$i]}'")) print $0}' $insca
+	        marcau=1
+	fi
+else
+	echo "sequências sobrepostas"
+	awk '{if (($4 == "'${sin[$i]}'")&&($2 == "'${bng[$i]}'")&&($3 == "'${end[$i]}'")) print $0}' $insca
+        marcau=1
+fi
+#########################################################################################################################
+				fi
+			fi
+		done
+	done
+	if [[ $marcau -eq 0 ]];
+	then
+		echo "scaffold OK"
+	else
+		echo "scafold com problema"
+	fi
+	rm $insca
+	unset bng end sin
+done
+date

@@ -1,0 +1,34 @@
+#########################################  Laura Joana SILVA LOPES, Jan 2016 #############################################
+# ! /usr/bin/ksh # para ter o arquivo colorido em VIM
+# roda o one-code e o extract_one-code
+# Usagem: run_one-code input_file program_source
+##########################################################################################################################
+if [ -z $2 ];
+then
+        echo -ne "\nThis script runs one-code and extract_one-code.\n"
+        echo -ne "Usage: run_one-code input_file program_source\n"
+        echo -ne "input_file = out_file from RepeatMasker\n\nNext time do it right!\n\n"
+        exit
+fi
+# localização dos scripts | para arretada: loc="/disk05/laurajs/bin/scripts" #
+loc="/disk05/laurajs/bin/scripts"
+input=$1
+program=$2
+dic="one.dic"
+nomes=$loc"/nomes" # localização do arquivo nomes
+pre=(`grep $program $nomes | awk '{print $2}'`)
+echo -n "Started! "
+date
+echo "building dictionary... "
+/usr/local/Onecodetofindthemall/build_dictionary.pl --rm $input > $dic
+echo "one-coding... "
+/usr/local/Onecodetofindthemall/one_code_to_find_them_all.pl --rm $input --ltr $dic --unknown --fasta --strict --flanking 300
+echo "mkdir program"
+mkdir $pre
+echo "movendo arquivos"
+mv *.elem_sorted.csv $pre/
+echo "extract_one-code... "
+/disk05/laurajs/bin/scripts/extract_one-code $program
+echo -ne "DONE!\n"
+echo -n "Ended! "
+date

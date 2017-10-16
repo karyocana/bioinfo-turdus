@@ -1,0 +1,18 @@
+# ! /usr/bin/ksh
+# script to run all the commands we need for repclass!
+if [ -z $3 ];
+then
+        echo -ne "\nThis script runs repclass.\n"
+        echo -ne "Usage: run_repclass JOB_NAME OUTPUT_DIR_NAME LIB_NAME\n"
+	echo -ne "genome_file = JOB_NAME.fa\n\nNext time do it right!\n\n"
+        exit
+fi
+job=$1
+dir_out=$2
+lib=$3
+echo -ne "running conf_repclass\n"
+/usr/local/repclass/conf/conf_repclass $job $dir_out $lib
+echo -ne "running choosemodule.pl\n"
+/usr/local/repclass/bin/choosemodule.pl new.conf &> module.out
+echo -ne "running rc.pl\n"
+/usr/local/repclass/bin/rc.pl new.conf &> $job.out

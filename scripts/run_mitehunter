@@ -1,0 +1,24 @@
+# ! /usr/bin/ksh
+# script to run Mitehunter and generates a single output
+# Usage: run_mitehunter 
+if [ -z $1 ];
+then
+        echo -ne "\nThis script runs Mitehunter and generates a single output.\n"
+        echo -ne "Usage: run_mitehunter fasta_file\n\nNext time do it right!\n\n"
+        exit
+fi
+fasta=$1
+echo -ne "\nStarted! "
+date
+echo -ne "Running: excluindo caracteres especiais... "
+sed -i '/>/! s/[UWSMKRYBDHVQL]/N/g' $fasta
+echo -ne "Mitehunter..."
+/home/programs/MITE_Hunter/MITE_Hunter_manager.pl -i $fasta -g mitehunter -n 3 -S 12345678 > mite.out
+
+echo -ne "unindo os arquivos..."
+mv *Step8_singlet.fa Step8.singlet.fa
+cat cat *Step8_* > tudo_mitehunter.fa
+echo -ne "DONE!\n"
+echo -n "Ended! "
+date
+echo

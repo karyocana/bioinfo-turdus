@@ -1,0 +1,27 @@
+# ! /usr/bin/ksh
+# script runs Vmatch and extract_vmatch
+# Usage: run_vmatch fasta_file
+############################# ATENÇÃO! PROGRAMA INSTALADO EM /disk05/laurajs/bin/vmatch #########################
+if [ -z $1 ];
+then
+        echo -ne "\nThis script runs Vmatch and extract_vmatch.\n"
+        echo -ne "Usage: run_vmatch fasta_file\n\nNext time do it right!\n\n"
+        exit
+fi
+dir=`pwd`
+fasta=$1
+out=$dir"/vmatch.out"
+tudo=$dir"/tudo_vmatch.fa"
+echo -ne "\nStarted! "
+date >> inicio_run_vmatch
+echo -ne "Running: mkvtree... "
+/disk05/laurajs/bin/vmatch/mkvtree -db $fasta -dna -pl -allout
+echo -ne "vmatch... "
+/disk05/laurajs/bin/vmatch/vmatch -v -l 400 $fasta > $out
+echo -ne "extract_vmatch... "
+date >> inicio_extract_vmatch
+/disk05/laurajs/bin/scripts/extract_vmatch $out $fasta $tudo
+echo -ne "DONE!\n"
+echo -n "Ended! "
+date >> fim_run_vmatch
+echo

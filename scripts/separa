@@ -1,0 +1,22 @@
+# ! /usr/bin/ksh
+# script para separar as sequencias em arquivos numerados a partir de 1
+# uso: ./separa arquivo-de-entrada prefixo-dos-arquivos-de-saída
+in=$1
+outsem=$2
+place=$(pwd)
+out=$place'/'$outsem
+rotulos=$(grep -n ">" $in | cut -d ':' -f 1)
+num=( `echo "$rotulos" | tr -s ' '` )
+let "nnum=${#num[@]}"
+last=$(grep -c "" $in)
+for ((i=0;i<nnum;i++));
+do
+	let "j=i+1"
+	let "num1=num[i]"
+	let "num2=num[i+1]-1"
+	if [ $num2 -eq -1 ];
+	then
+		num2=$last
+	fi 
+	sed -n "$num1, $num2 p" $in | sed 's/:/ /g' > $out$j
+done

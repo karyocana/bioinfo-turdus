@@ -1,0 +1,6 @@
+BLAST Database error: No alias or index file found for nucleotide database [pre] in search path [/disk06/Turdus_dvlp/bin/scripts::/disk03/data/mpiblast/database:]
+RepeatModeler Version open-1.0.8
+================================
+Search Engine = ncbi
+Database = pre 
+Database pre does not contain any sequences!

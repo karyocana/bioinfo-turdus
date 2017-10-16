@@ -1,0 +1,49 @@
+# ! /usr/bin/ksh
+# bash script to write conf user file and run repclass..... because repclass is idiote!
+# Usage: conf_repclass JOB_NAME OUTPUT_DIR_NAME LIB_NAME
+if [ -z $3 ];
+then
+	echo -ne "\nThis script writes the user conf file for you and give you the next steps.\n"
+	echo -ne "Usage: conf_repclass JOB_NAME OUTPUT_DIR_NAME LIB_NAME\n\nNext time do it right!\n\n"
+	exit
+fi
+name=new.conf
+dir=$(pwd)
+echo "\nuser conf file: "$name
+if [ -a $name ];
+then
+	rm $name
+fi
+echo "\$File = \"check\";" >> $name
+#echo "\$moduleNb = \"module\";" >> $name
+echo "\$REPCLASS_CONF = \"/disk05/laurajs/bin/repclass/conf/repclass.conf\";" >> $name
+echo "\$JOB_NAME= \"$1\";" >> $name
+echo "\$DATA=\"$dir/$2\";" >> $name
+echo "\$FINAL_PARSED = \"\$DATA/Final_parsed.txt\";" >> $name
+echo "\$TEMPCHOICE = \"\$DATA/mytempchoice\";" >> $name
+echo "\$PBS=0;" >> $name
+echo "\$GENOME_LOCATION=\"$dir\";" >> $name
+echo "\$GENOME_FILE=\"\$JOB_NAME.fa\";" >> $name
+echo "\$GENOME_SEQUENCE=\"\$GENOME_LOCATION/\$GENOME_FILE\";" >> $name
+echo "\$GENOME_INDEX=\"\$GENOME_SEQUENCE.idx\";" >> $name
+echo "\$BLASTDB	=\"\$GENOME_LOCATION/db\";" >> $name 
+echo "\$USERBLASTDB=\"repbase_all.fasta\";" >> $name
+echo "\$TSDBLASTDB=\"\$GENOME_FILE\";" >> $name
+echo "\$TE_SEQUENCE=\"$dir/$3\";" >> $name
+echo "User conf file done!"
+if [ -d $2 ];
+then
+	rm -r $2
+fi
+if [ -d db ];
+then
+        rm -r db
+fi
+mkdir db
+mkdir $2
+#echo "Running rc.pl..."
+#userconf=$(echo $dir"/"$name)
+#rc.pl $userconf
+#echo "Finaly done!!!"
+echo -ne "Feel free to run choosemodule.pl and rc.pl now!\n \t\t\t=)\n\n"
+echo -ne "Command lines:\nchoosemodule.pl new.conf\nrc.pl new.conf\n\n"

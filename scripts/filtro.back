@@ -1,0 +1,356 @@
+# ! /usr/bin/ksh
+# script para filtrar a saída do one-code (do extract_one-code), imprindo de outra forma as sobreposições
+# Usage: filtro arq rodada
+# saída: scaffold begin end sinal conf familias flags
+if [ -z $2 ];
+then
+        echo -ne "\nThis script runs filtro.\n"
+        echo -ne "Usage: filtro arq\n\nNext time do it right!\n\n"
+        exit
+fi
+dir=`pwd`
+in=$1
+round=$2
+echo -ne "\nstarted round $round "
+date
+echo
+flagfix=(`grep -v "#" $in | head -1 | awk '{print $8}' | cut -d'.' -f1`)
+out=$dir"/"$flagfix"_"filtro.csv
+pre=`date +%s`
+temp=$pre.$flagfix.out
+tempout=$pre.$flagfix.temp.out
+if [ -f '$out' ];
+then
+        rm $out
+fi
+echo "input: " $in
+echo "resultados: " $tempout
+echo -ne "# scaffold\tbegin\tend\tsinal\tconfiança\tfamília(s)\tNESTED\tflag(s)\n" > $tempout
+echo "salvo arquivo temporário"
+# pegando scaffolds
+sca=(`awk '{print $1}' $in | grep -v "#" | uniq`)
+let "nsca=${#sca[@]}"
+let "gegr=nsca-1"
+outsca=$pre.$flagfix.temp.sca
+insca=sca.temp.$flagfix.$pre # temporary file
+marca=0
+# Por scaffold
+for((s=0;s<nsca;s++));
+do
+	awk '{if ($1 == "'${sca[$s]}'") print $0}' $in | sort -k 2 -n > $insca # arquivo com mesmo scaffold
+	echo -ne ${sca[$s]} "\t"
+	date
+	declare -a bng end sin fam flag
+	# pegando sequências
+	bng=(`grep -v "#" $insca | awk '{print $2}'`)
+	end=(`grep -v "#" $insca  | awk '{print $3}'`)
+	sin=(`grep -v "#" $insca  | awk '{print $4}'`)
+	fam=(`grep -v "#" $insca  | awk '{print $6}'`)
+	nest=(`grep -v "#" $insca  | awk '{print $7}'`)
+	flag=(`grep -v "#" $insca  | awk '{print $8}'`)
+	let "nseq=${#bng[@]}"
+	k=0
+	declare -a list
+	jini=0
+	# Comparando coordenadas 2 a 2:
+	for((i=0;i<nseq;i++));
+	do
+		let "jini=i+1"
+		for((j=jini;j<nseq;j++));
+		do
+####################     condição que garante que não haverá nenhuma sobreposição a partir desta sequência, #############
+####################     visto que o arquivo é ordenado de acordo com bng! Este é o corte final! 	    #############
+			marcau=0
+			if [ ${bng[$j]} -gt ${end[$i]} ];
+			then
+				j=$nseq
+			else
+				#	   mesmo sinal
+				if [ ${sin[$i]} == ${sin[$j]} ];
+				then
+#					echo $i $j
+#					echo ${bng[$i]} ${end[$i]} ${bng[$j]} ${end[$j]}
+##################################### voltando a concatenação ###########################################
+# sequências iguais
+if [ ${bng[$i]} -eq ${bng[$j]} ] && [ ${end[$i]} -eq ${end[$j]} ];
+then
+#	echo "iguais: " $i $j
+	confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+	confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+	let "conf=confi+confj"
+	nflag=$flagfix.$conf
+	echo -ne "${sca[$s]}\t${bng[$j]}\t${end[$j]}\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\t----\t$nflag\n">> $outsca
+	let "list[k]=i"
+	let "list[k+1]=j"
+	let "k=k+2"
+fi
+# sobreposição com início igual
+if [ ${bng[$i]} -eq ${bng[$j]} ] && [ ${end[$i]} -ne ${end[$j]} ];
+then
+#	echo "inicio igual: " $i $j
+	ini1=${bng[$i]} #seq comum
+	if [ ${end[$j]} -lt ${end[$i]} ];
+	then
+		fin1=${end[$j]}
+	        let "ini3=end[j]+1" #seq posterior
+	        fin3=${end[$i]}
+		famp=${fam[$i]}
+		flagp=${flag[$i]}
+	else
+		fin1=${end[$i]}
+                let "ini3=end[i]+1" #seq posterior
+                fin3=${end[$j]}
+                famp=${fam[$j]}
+		flagp=${flag[$j]}
+	fi
+        if [[ " ${list[*]} " == *" $i "* ]];
+        then
+		fin3=(`awk '{if (($2 == "'${bng[$i]}'")&&($4 == "'${sin[$i]}'")) print $3}' $outsca`)
+		confs=(`awk '{if (($2 == "'${bng[$i]}'")&&($4 == "'${sin[$i]}'")) print $8}' $outsca | cut -d'.' -f2`)
+		n=(`awk '{if (($2 == "'${bng[$i]}'")&&($4 == "'${sin[$i]}'")) print NR}' $outsca`)
+		if [ ${#n[@]} -gt 1 ] || [ $fin3 -le $fin1 ] || [ $confs -gt $round ]; #problema!
+		then
+			let "marca=marca+1"
+			marcau=1
+#			echo "problema" $marca
+		else
+			sed ''$n'd' $outsca > $temp
+			mv $temp $outsca
+		fi
+	fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+	then
+		confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+                confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+		# seq comum
+		echo -ne "${sca[$s]}\t$ini1\t$fin1\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\tnest\t$nflag\n">> $outsca
+		# seq posterior
+		echo -ne "${sca[$s]}\t$ini3\t$fin3\t${sin[$i]}\t1\t$famp\tnest\t$flagp\n">> $outsca
+		let "list[k]=i"
+		let "list[k+1]=j"
+		let "k=k+2"
+	fi
+fi
+# sobreposição com final igual
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -eq ${end[$j]} ];
+then
+#	echo "final igual: " $i $j
+	ini1=${bng[$j]} #seq comum
+        fin1=${end[$j]}
+        ini2=${bng[$i]} #seq anterior
+        let "fin2=bng[j]-1"
+	if [[ " ${list[*]} " == *" $i "* ]];
+        then
+		ini2=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print $2}' $outsca`)
+		n=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print NR}' $outsca`)
+		confs=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print $8}' $outsca | cut -d'.' -f2`)
+		if [ ${#n[@]} -gt 1 ] || [ $ini2 -ge $ini1 ] || [ $confs -gt $round ]; #problema!
+                then
+	                let "marca=marca+1"
+                        marcau=1
+#			echo "problema" $marca
+                else
+			sed ''$n'd' $outsca > $temp
+			mv $temp $outsca
+		fi
+	fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+	then
+		confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+		confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+		# seq comum
+		echo -ne "${sca[$s]}\t$ini1\t$fin1\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\tnest\t$nflag\n">> $outsca
+		# seq anterior
+		echo -ne "${sca[$s]}\t$ini2\t$fin2\t${sin[$i]}\t1\t${fam[$i]}\tnest\t${flag[$i]}\n">> $outsca
+		let "list[k]=i"
+		let "list[k+1]=j"
+		let "k=k+2"
+	fi
+fi
+#pedaços colados
+let "teste=${end[$i]}+1"
+if [ ${bng[$j]} -eq $teste ] && [ ${nest[$i]} -ne "nest" ] && [ ${nest[$j]} -ne "nest" ];
+then
+#       echo "colados: " $i $j
+        if [[ " ${list[*]} " == *" $i "* ]];
+        then
+                let "marca=marca+1"
+                marcau=1
+#                       echo "problema" $marca
+        fi
+        if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+        then
+                confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+                confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+                # seq i
+                echo -ne "${sca[$s]}\t${bng[$i]}\t${end[$i]}\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\tnest\t${flag[i]}\n">> $outsca
+                # seq j
+                echo -ne "${sca[$s]}\t${bng[$j]}\t${end[$j]}\t${sin[$i]}\t1\t$famp\tnest\t${flag[j]}\n">> $outsca
+                let "list[k]=i"
+                let "list[k+1]=j"
+                let "k=k+2"
+        fi
+fi
+# seq j dentro de seq i
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -gt ${end[$j]} ];
+then
+#	echo "dentro: " $i $j
+	seq2=1
+	ini1=${bng[$j]} #seq comum: 1
+	fin1=${end[$j]}
+	ini2=${bng[$i]} #seq anterior: 2
+	let "fin2=bng[j]-1"
+	let "ini3=end[j]+1" #seq posterior: 3
+	fin3=${end[$i]}
+	if [[ " ${list[*]} " == *" $i "* ]];
+	then
+		f=(`awk '{if (($4 == "'${sin[$i]}'")&&($2 == "'${bng[$i]}'")) print $3}' $outsca | tr -s " " "/n"`)
+		if [ ${#f[@]} -gt 1 ];
+		then
+			let "marca=marca+1"
+	                marcau=1
+#			echo "problema" $marca
+		else
+			if [ ${bng[$j]} -lt $f ];
+			then
+				fin3=$f
+				confs=(`awk '{if (($2 == "'${bng[$i]}'")&&($4 == "'${sin[$i]}'")) print $8}' $outsca | cut -d'.' -f2`)
+				n=(`awk '{if (($2 == "'${bng[$i]}'")&&($4 == "'${sin[$i]}'")) print NR}' $outsca`)
+				if [ ${#n[@]} -gt 1 ] || [ $ini2 -ge $ini1 ] || [ $confs -gt $round ]; #problema!
+                       		then
+					let "marca=marca+1"
+					marcau=1
+#					echo "problema" $marca
+				else
+					sed ''$n'd' $outsca > $temp
+					mv $temp $outsca
+				fi
+			else
+				ini2=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print $2}' $outsca`)
+				confs=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print $8}' $outsca | cut -d'.' -f2`)
+				n=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print NR}' $outsca`)
+				if [ ${#n[@]} -gt 1 ] || [ $ini2 -ge $ini1 ] || [ $confs -gt $round ]; #problema!
+                       	        then
+                      	                let "marca=marca+1"
+                       	                marcau=1
+#					echo "problema" $marca
+                   	        else
+					if [ $ini2 -eq ${bng[$j]} ]; #não há seq anterior
+                       	        	then
+                       	        	        seq2=0
+                       	        	fi
+                       	        	sed ''$n'd' $outsca > $temp
+                     	        	mv $temp $outsca
+				fi
+			fi
+		fi
+	fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+        then
+		confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+                confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+		# seq comum
+		echo -ne "${sca[$s]}\t$ini1\t$fin1\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\tnest\t$nflag\n">> $outsca
+		# seq anterior
+		if [ $seq2 -eq 1 ];
+		then
+			echo -ne "${sca[$s]}\t$ini2\t$fin2\t${sin[$i]}\t1\t${fam[$i]}\tnest\t${flag[$i]}\n">> $outsca
+		fi
+		# seq posterior
+		echo -ne "${sca[$s]}\t$ini3\t$fin3\t${sin[$i]}\t1\t${fam[$i]}\tnest\t${flag[$i]}\n">> $outsca
+		let "list[k]=i"
+		let "list[k+1]=j"
+		let "k=k+2"
+	fi
+fi
+# sobreposição de um pedaço
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -lt ${end[$j]} ] && [ ${bng[$j]} -le ${end[$i]} ];
+then
+#	echo "pedaco: " $i $j
+	seq2=1
+	ini1=${bng[$j]} #seq comum
+        fin1=${end[$i]}
+        ini2=${bng[$i]} #seq anterior
+        let "fin2=bng[j]-1"
+	let "ini3=end[i]+1" #seq posterior
+        fin3=${end[$j]}
+        if [[ " ${list[*]} " == *" $i "* ]];
+        then
+		ini2=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print $2}' $outsca`)
+		n=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print NR}' $outsca`)
+		confs=(`awk '{if (($3 == "'${end[$i]}'")&&($4 == "'${sin[$i]}'")) print $8}' $outsca | cut -d'.' -f2`)
+		if [ ${#n[@]} -gt 1 ] || [ $ini2 -ge $ini1 ] || [ $confs -gt $round ]; #problema!
+		then
+			marcau=1
+			let "marca=marca+1"
+#			echo "problema" $marca
+		else
+			if [ $ini2 -eq ${bng[$j]} ]; #não há seq anterior
+                     	then
+                       	        seq2=0
+                       	fi
+			sed ''$n'd' $outsca > $temp
+			mv $temp $outsca
+		fi
+	fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+	then
+		confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+                confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+		# seq comum
+              	echo -ne "${sca[$s]}\t$ini1\t$fin1\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\tnest\t$nflag\n">> $outsca
+		# seq anterior i
+		if [ $seq2 -eq 1 ];
+		then
+              		echo -ne "${sca[$s]}\t$ini2\t$fin2\t${sin[$i]}\t1\t${fam[$i]}\tnest\t${flag[$i]}\n">> $outsca
+		fi
+		# seq posterior j
+               	echo -ne "${sca[$s]}\t$ini3\t$fin3\t${sin[$i]}\t1\t${fam[$j]}\tnest\t${flag[$j]}\n">> $outsca
+               	let "list[k]=i"
+              	let "list[k+1]=j"
+          	let "k=k+2"
+	fi
+fi
+###################################### fim concatenação diferente ###########################################
+				fi
+			fi
+		done
+	done
+	for((i=0;i<nseq;i++));
+	do
+		if [[ " ${list[*]} " != *" $i "* ]];
+		then
+			echo -ne "${sca[$s]}\t${bng[$i]}\t${end[$i]}\t${sin[$i]}\t1\t${fam[$i]}\t${nest[$i]}\t${flag[$i]}\n">> $outsca
+		fi
+	done
+	rm $insca
+	cat $outsca >> $tempout
+	rm $outsca
+	unset list
+	unset bng end sin fam flag
+	echo -ne "Terminado o scaffold" $s"/"$gegr "\t"
+	date
+done
+if [[ $marca -gt 0 ]];
+then
+	let "round=round+1"
+	echo -ne "Encontrados $marca problemas de sobreposição exagerada\nRodando novamente... round " $round" "
+	arq="caralho"$round
+	awk '{print $2"\t"$3"\t"$8}' $tempout > $arq
+	echo "/disk05/laurajs/bin/scripts/filtro" $tempout $round
+	/disk05/laurajs/bin/scripts/filtro $tempout $round
+else
+	cat $tempout > $out
+	echo -ne "\nFiltro terminado!\n\n"
+fi
+rm $tempout

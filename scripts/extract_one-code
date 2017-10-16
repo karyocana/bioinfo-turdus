@@ -1,0 +1,58 @@
+#########################################  Laura Joana SILVA LOPES, Jan 2016 #############################################
+# ! /usr/bin/ksh # para ter o arquivo colorido em VIM
+# Cria os arquivos unificados de cada programa (roda nested e filtro)
+# Os arquivos estarão em ..../one-code/flagprograma | rodar de ..../one-code | saída em ..../one-code
+# Usagem: extract_one-code program_source
+##########################################################################################################################
+echo "extract_one-code rodando..."
+if [ -z $1 ];
+then
+        echo -ne "\nThis script estracts one-code results and runs nested and filtro.\n"
+        echo -ne "Usage: extract_one-code program_source\n\nNext time do it right!\n\n"
+        exit
+fi
+# localização dos scripts | para arretada: loc="/disk05/laurajs/bin/scripts" #
+loc="/disk05/laurajs/bin/scripts"
+nomes=$loc"/nomes" # localização do arquivo nomes
+prog=$1
+dir=`pwd`
+pre=(`grep $prog $nomes | awk '{print $2}'`)
+log=$dir"/extract_"$pre".log"
+if [ -f $log ];
+then
+        rm $log
+fi
+outfiltro=$dir"/"$pre"_filtro.csv"
+outnested=$dir"/"$pre"_nested.csv"
+temp=$dir"/"`date +%s`.temp
+cat $dir/$pre/*.elem_sorted.csv | grep "#" | awk '{print $5"\t"$6"\t"$7"\t"$9"\t1\t"$10";"$11"\t----\t"}' | sed 's/$/'$pre'.1/' > $dir/$pre.csv
+echo "resultados do one-code extraídos"
+echo "arquivo de log:"
+echo $log
+echo -ne "RODANDO NESTED\n\n" >> $log
+$loc/nested $dir/$pre.csv &> $temp #rodando nested
+cat $temp >> $log
+echo -ne "NESTED RODADO\n\n" >> $log
+echo "nested rodado"
+rm $temp
+echo "OK"
+################# para DEBUG ###############
+puro=$dir"/"$pre"_puro.csv"
+cp $dir/$pre.csv $puro
+cp $outnested $dir/$pre.csv
+############################################
+#mv $outnested $dir/$pre.csv # substituindo o arquivo anterior pela saída do nested (motivo: uso de memória)
+#echo "arquivo" $pre".csv" "substituído pela saída do nested"
+echo -ne "RODANDO FILTRO\n\n" >> $log
+$loc/filtro $dir/$pre.csv 1 &> $temp # rodando filtro
+cat $temp >> $log
+echo "filtro rodado"
+echo -ne "FILTRO RODADO\n\n" >> $log
+rm $temp
+echo "OK"
+################# para DEBUG ###############
+mv $puro $dir/$pre.csv
+############################################
+#mv $outfiltro $dir/$pre.csv # substituindo o arquivo anterior pela saída do filtro (motivo: uso de memória)
+#echo "arquivo" $pre".csv" "substituído pela saída do filtro"
+echo -ne "FINAL do extract\n\n\t=)\n\n"

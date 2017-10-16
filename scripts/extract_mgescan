@@ -1,0 +1,51 @@
+# ! /usr/bin/ksh
+# Script para extrair as sequências encontradas pelo MGEScan (LTR e non_LTR)
+# Usage
+dir=`pwd`
+genome=$1
+ltr=$2
+out=$3
+if [ -a $out ];
+then
+        rm $out
+fi
+# info/full/pasta/pasta.????? --> unir arquivos fasta
+########################################## FALTA #####################################
+
+# ltr/ltr.out --> extraindo com coordenadas
+tit=(`grep -v "\-\-\-\-\-\-\-\-\-\-" $ltr | awk '{print $1}' | rev | cut -d'.' -f2- | rev`)
+bng=(`grep -v "\-\-\-\-\-\-\-\-\-\-" $ltr | awk '{print $2}'`)
+end=(`grep -v "\-\-\-\-\-\-\-\-\-\-" $ltr | awk '{print $5}'`)
+sinal=(`grep -v "\-\-\-\-\-\-\-\-\-\-" $ltr | awk '{print $6}'`)
+let "num=${#tit[@]}"
+lines=(`grep -n ">" $genome | cut -d ':' -f 1 | tr -s '\n'`)
+let "scanum=${#lines[@]}"
+last=$(grep -c "" $input)
+i=0
+j=0
+echo "scaffolds: "$scanum
+while [[ $i -lt $scanum && $j -lt $num ]];
+do
+	echo -ne "\r $i"
+	let "ind1=lines[i]+1"
+	let "ind2=lines[i+1]-1"
+	if [ $ind2 -eq -1 ];
+	then
+		let "ind2=last"
+	fi
+	let "quant=$ind2-ind1+1"
+	seq=(`head -$ind2 $genome | tail -$quant | fold -w1`) # separates the sacaffold in to an array
+	while [[ $i -eq ${scaffold[$j]} ]];
+	do
+		echo -ne ">rep_$j|scaffold_$i\n" >> $output
+		echo -ne "${seq[@]:${pos[$j]}:${tam[$j]}}" | tr -d ' ' >> $output
+		echo -ne "\n">>$output
+		let "j=j+1"
+	done
+	while [[ $i -ne ${scaffold[$j]} ]];
+	do
+		let "i=i+1"
+	done
+done
+echo
+#Ordem: número posição tamanho

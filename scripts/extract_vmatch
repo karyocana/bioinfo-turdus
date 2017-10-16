@@ -1,0 +1,48 @@
+# ! /usr/bin/ksh
+# Generates a fasta file with the sequences found by vmatch
+# Usage: extract_vmatch vmatch_out genoma.fasta output
+input=$1
+genome=$2
+output=$3
+lines=(`grep -n ">" $genome | cut -d ':' -f 1 | tr -s '\n'`)
+let "scanum=${#lines[@]}"
+last=$(grep -c "" $input)
+if [ -a $output ];
+then
+	rm $output
+fi
+
+#grep -v "#" papagaio_atleast_l160 | awk '{print $2"\t"$3"\t"$1}' | sort -k 1,1  
+
+scaffold=(`grep -v "#" $input | awk '{print $2"\t"$3"\t"$1"\n"$6"\t"$7"\t"$5}' | sort -k 1,1 | uniq | awk '{print $1}' | tr -s '\n'`)
+pos=(`grep -v "#" $input | awk '{print $2"\t"$3"\t"$1"\n"$6"\t"$7"\t"$5}' | sort -k 1,1 | uniq | awk '{print $2}' | tr -s '\n'`)
+tam=(`grep -v "#" $input | awk '{print $2"\t"$3"\t"$1"\n"$6"\t"$7"\t"$5}' | sort -k 1,1 | uniq | awk '{print $3}' | tr -s '\n'`)
+let "num=${#tam[@]}"
+i=0
+j=0
+echo "scaffolds: "$scanum
+while [[ $i -lt $scanum && $j -lt $num ]];
+do
+	echo -ne "\r $i"
+	let "ind1=lines[i]+1"
+	let "ind2=lines[i+1]-1"
+	if [ $ind2 -eq -1 ];
+	then
+		let "ind2=last"
+	fi
+	let "quant=$ind2-ind1+1"
+	seq=(`head -$ind2 $genome | tail -$quant | fold -w1`) # separates the sacaffold in to an array
+	while [[ $i -eq ${scaffold[$j]} ]];
+	do
+		echo -ne ">rep_$j|scaffold_$i\n" >> $output
+		echo -ne "${seq[@]:${pos[$j]}:${tam[$j]}}" | tr -d ' ' >> $output
+		echo -ne "\n">>$output
+		let "j=j+1"
+	done
+	while [[ $i -ne ${scaffold[$j]} ]];
+	do
+		let "i=i+1"
+	done
+done
+echo
+#Ordem: número posição tamanho

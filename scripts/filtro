@@ -1,0 +1,346 @@
+#########################################  Laura Joana SILVA LOPES, Mar 2016 #############################################
+# ! /usr/bin/ksh # para ter o arquivo colorido em VIM
+# script para filtrar a saída nested para unir as sequências não unidas pelo one-code
+# Quanto à caracterização nested é considerada a menor
+# Exemplos: a sequência comum entre I e IS é de nested I
+# Usage: filtro arq rodada
+# saída: scaffold begin end sinal conf familias nested flags
+##########################################################################################################################
+echo -ne "filtro "
+if [ -z $2 ];
+then
+        echo -ne "\nThis script runs filtro.\n"
+        echo -ne "Usage: filtro arq 1\n\nNext time do it right!\n\n"
+        exit
+fi
+# localização dos scripts | para arretada: loc="/disk05/laurajs/bin/scripts" #
+loc="/disk05/laurajs/bin/scripts"
+dir=`pwd`
+args=("$@")
+in=${args[0]} # mesmo que $1
+round=${args[1]} # mesmo que $2
+echo "round $round"; date ; echo
+num=$# # numero de argumentos
+declare -a pbsca #scaffolds com problema!!!!
+declare -a npbsca #scaffolds com problema nesta rodada
+if [ $round -gt 1 ];
+then
+	for((i=2;i<num;i++));
+	do
+		let "ind=i-2"
+		pbsca[$ind]=${args[$i]}
+	done
+fi
+echo "problemas?" ${pbsca[@]}
+date
+echo
+flagfix=(`grep -v "#" $in | head -1 | awk '{print $8}' | cut -d'.' -f1`)
+out=$dir"/"$flagfix"_"filtro.csv
+pre=`date +%s`
+temp=$pre.$flagfix.temp
+tempout=$pre.$flagfix.temp.out
+if [[ $in == $tempout ]];
+then
+        sleep 1
+	pre=`date +%s`
+	temp=$pre.$flagfix.out
+	tempout=$pre.$flagfix.temp.out
+fi
+if [ -f $out ];
+then
+        rm $out
+fi
+echo "input: " $in
+echo "resultados: " $tempout
+echo -ne "#scaffold\tbegin\tend\tsinal\tconfiança\tfamília(s)\tNESTED\tflag(s)\n" > $tempout
+echo "salvo arquivo temporário"
+# pegando scaffolds
+sca=(`awk '{print $1}' $in | grep -v "#" | uniq`)
+let "nsca=${#sca[@]}"
+let "gegr=nsca-1"
+outsca=$pre.$flagfix.temp.sca
+insca=sca.temp.$flagfix.$pre # temporary file
+marca=0
+pb=0 # numero de scaffolds problemáticos encontrados nessa rodada
+# Por scaffold
+for((s=0;s<nsca;s++));
+do
+	if [ $round -eq 1 ] || [[ " ${pbsca[*]} " == *" $s "* ]];
+	then
+		awk '{if ($1 == "'${sca[$s]}'") print $0}' $in | sort -k 2 -n > $insca # arquivo com mesmo scaffold
+		echo -ne ${sca[$s]} "\t"
+		date
+		declare -a bng end sin fam flag
+		# pegando sequências
+		bng=(`grep -v "#" $insca | awk '{print $2}'`)
+		end=(`grep -v "#" $insca  | awk '{print $3}'`)
+		sin=(`grep -v "#" $insca  | awk '{print $4}'`)
+		fam=(`grep -v "#" $insca  | awk '{print $6}'`)
+		nest=(`grep -v "#" $insca  | awk '{print $7}'`)
+		flag=(`grep -v "#" $insca  | awk '{print $8}'`)
+		let "nseq=${#bng[@]}"
+		k=0
+		declare -a list
+		jini=0
+		# Comparando coordenadas 2 a 2:
+		for((i=0;i<nseq;i++));
+		do
+			let "jini=i+1"
+			marcau=0
+			for((j=jini;j<nseq;j++));
+			do
+####################     condição que garante que não haverá nenhuma sobreposição a partir desta sequência, #############
+####################     visto que o arquivo é ordenado de acordo com bng! Este é o corte final! 	    #############
+				if [ ${bng[$j]} -gt ${end[$i]} ] || [ $marcau -ne 0 ];
+				then
+					j=$nseq
+				else
+					#	   mesmo sinal
+					if [ ${sin[$i]} == ${sin[$j]} ];
+					then
+##################################### voltando a concatenação ###########################################
+# sequências iguais
+if [ ${bng[$i]} -eq ${bng[$j]} ] && [ ${end[$i]} -eq ${end[$j]} ];
+then
+	#echo "iguais: " $i $j ${nest[$i]} ${nest[$j]}
+	confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+	confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+	let "conf=confi+confj"
+	nflag=$flagfix.$conf
+	cla1=(`echo ${nest[$i]}${nest[$j]} | fold -w1 | sort | uniq`)
+	if [[ " ${list[*]} " == *" $i "* ]];
+        then
+                        let "marca=marca+1"
+                        marcau=1
+                        if [[ " ${npbsca[*]} " != *" $s "* ]];
+                        then
+                                npbsca[$pb]=$s
+                                let "pb=pb+1"
+                        fi
+        fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+        then
+		echo -ne "${sca[$s]}\t${bng[$j]}\t${end[$j]}\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\t$cla1\t$nflag\n">> $outsca
+		let "list[k]=i"
+		let "list[k+1]=j"
+		let "k=k+2"
+	fi
+fi
+# sobreposição com início igual
+if [ ${bng[$i]} -eq ${bng[$j]} ] && [ ${end[$i]} -ne ${end[$j]} ];
+then
+	#echo "inicio igual: " ${bng[$i]} ${bng[$j]} ${end[$i]} ${end[$j]} ${nest[$i]} ${nest[$j]}
+	ini1=${bng[$i]} #seq comum
+	if [ ${end[$j]} -lt ${end[$i]} ]; # a sequência menor é j
+	then
+		cla1=${nest[$j]}
+		cla3=${nest[$i]}
+		fin1=${end[$j]}
+	        let "ini3=end[j]+1" #seq posterior
+	        fin3=${end[$i]}
+		famp=${fam[$i]}
+		flagp=${flag[$i]}
+	else # a sequência menor é i
+		cla1=${nest[$i]}
+		cla3=${nest[$j]}
+		fin1=${end[$i]}
+                let "ini3=end[i]+1" #seq posterior
+                fin3=${end[$j]}
+                famp=${fam[$j]}
+		flagp=${flag[$j]}
+	fi
+        if [[ " ${list[*]} " == *" $i "* ]];
+        then
+			let "marca=marca+1"
+			marcau=1
+			if [[ " ${npbsca[*]} " != *" $s "* ]];
+			then
+				npbsca[$pb]=$s
+				let "pb=pb+1"
+			fi
+	fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+	then
+#		echo "inicio"
+		confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+                confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+		# seq comum
+		echo -ne "${sca[$s]}\t$ini1\t$fin1\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\t$cla1\t$nflag\n">> $outsca
+		# seq posterior
+		echo -ne "${sca[$s]}\t$ini3\t$fin3\t${sin[$i]}\t1\t$famp\t$cla3\t$flagp\n">> $outsca
+		let "list[k]=i"
+		let "list[k+1]=j"
+		let "k=k+2"
+		#marcau=1 ###########################################
+	fi
+fi
+# sobreposição com final igual
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -eq ${end[$j]} ];
+then
+	#echo "final igual: " ${bng[$i]} ${bng[$j]} ${end[$i]} ${end[$j]} ${nest[$i]} ${nest[$j]}
+	ini1=${bng[$j]} #seq comum
+        fin1=${end[$j]}
+	cla1=${nest[$j]}
+        ini2=${bng[$i]} #seq anterior
+	cla2=${nest[$i]}
+        let "fin2=bng[j]-1"
+	if [[ " ${list[*]} " == *" $i "* ]];
+        then
+		let "marca=marca+1"
+		marcau=1
+		if [[ " ${npbsca[*]} " != *" $s "* ]];
+                then    
+                        npbsca[$pb]=$s
+                        let "pb=pb+1"
+                fi
+	fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+	then
+#		echo "final"
+		confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+		confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+		# seq comum
+		echo -ne "${sca[$s]}\t$ini1\t$fin1\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\t$cla1\t$nflag\n">> $outsca
+		# seq anterior
+		echo -ne "${sca[$s]}\t$ini2\t$fin2\t${sin[$i]}\t1\t${fam[$i]}\t$cla2\t${flag[$i]}\n">> $outsca
+		let "list[k]=i"
+		let "list[k+1]=j"
+		let "k=k+2"
+                #marcau=1 ###########################################
+	fi
+fi
+# seq j dentro de seq i
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -gt ${end[$j]} ];
+then
+	#echo "dentro: " ${bng[$i]} ${bng[$j]} ${end[$i]} ${end[$j]} ${nest[$i]} ${nest[$j]}
+	seq2=1
+	ini1=${bng[$j]} #seq comum: 1
+	fin1=${end[$j]}
+	cla1=${nest[$j]}
+	ini2=${bng[$i]} #seq anterior: 2
+	cla2=${nest[$i]}
+	let "fin2=bng[j]-1"
+	let "ini3=end[j]+1" #seq posterior: 3
+	cla3=$cla2
+	fin3=${end[$i]}
+	if [[ " ${list[*]} " == *" $i "* ]];
+	then
+		let "marca=marca+1"
+	        marcau=1
+		if [[ " ${npbsca[*]} " != *" $s "* ]];
+                then    
+                        npbsca[$pb]=$s
+                        let "pb=pb+1"
+                fi
+	fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+        then
+#		echo "dentro"
+		confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+                confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+		# seq comum
+		echo -ne "${sca[$s]}\t$ini1\t$fin1\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\t$cla1\t$nflag\n">> $outsca
+		# seq anterior
+		if [ $seq2 -eq 1 ];
+		then
+			echo -ne "${sca[$s]}\t$ini2\t$fin2\t${sin[$i]}\t1\t${fam[$i]}\t$cla2\t${flag[$i]}\n">> $outsca
+		fi
+		# seq posterior
+		echo -ne "${sca[$s]}\t$ini3\t$fin3\t${sin[$i]}\t1\t${fam[$i]}\t$cla3\t${flag[$i]}\n">> $outsca
+		let "list[k]=i"
+		let "list[k+1]=j"
+		let "k=k+2"
+                #marcau=1 ###########################################
+	fi
+fi
+# sobreposição de um pedaço
+if [ ${bng[$i]} -lt ${bng[$j]} ] && [ ${end[$i]} -lt ${end[$j]} ] && [ ${bng[$j]} -le ${end[$i]} ];
+then
+	#echo "pedaco: " ${bng[$i]} ${bng[$j]} ${end[$i]} ${end[$j]} ${nest[$i]} ${nest[$j]}
+	seq2=1
+	ini1=${bng[$j]} #seq comum
+        fin1=${end[$i]}
+	cla1=${nest[$j]}
+        ini2=${bng[$i]} #seq anterior
+	cla2=${nest[$i]}
+        let "fin2=bng[j]-1"
+	let "ini3=end[i]+1" #seq posterior
+        fin3=${end[$j]}
+	cla3=$cla1
+        if [[ " ${list[*]} " == *" $i "* ]];
+        then
+		marcau=1
+		let "marca=marca+1"
+		if [[ " ${npbsca[*]} " != *" $s "* ]];
+                then    
+                        npbsca[$pb]=$s
+                        let "pb=pb+1"
+                fi
+	fi
+	if [[ $marcau -eq 0 ]]; #nenhum problema de sobreposição exagerada
+	then
+#		echo "pedaco"
+		confi=(`echo ${flag[i]} | cut -d'.' -f2`)
+                confj=(`echo ${flag[j]} | cut -d'.' -f2`)
+                let "conf=confi+confj"
+                nflag=$flagfix.$conf
+		# seq comum
+              	echo -ne "${sca[$s]}\t$ini1\t$fin1\t${sin[$i]}\t1\t${fam[$i]}&${fam[$j]}\t$cla1\t$nflag\n">> $outsca
+		# seq anterior i
+		if [ $seq2 -eq 1 ];
+		then
+              		echo -ne "${sca[$s]}\t$ini2\t$fin2\t${sin[$i]}\t1\t${fam[$i]}\t$cla2\t${flag[$i]}\n">> $outsca
+		fi
+		# seq posterior j
+               	echo -ne "${sca[$s]}\t$ini3\t$fin3\t${sin[$i]}\t1\t${fam[$j]}\t$cla3\t${flag[$j]}\n">> $outsca
+               	let "list[k]=i"
+              	let "list[k+1]=j"
+          	let "k=k+2"
+                #marcau=1 ###########################################
+	fi
+fi
+###################################### fim concatenação diferente ###########################################
+					fi
+				fi
+			done
+		done
+		for((i=0;i<nseq;i++));
+		do
+			if [[ " ${list[*]} " != *" $i "* ]];
+			then
+				echo -ne "${sca[$s]}\t${bng[$i]}\t${end[$i]}\t${sin[$i]}\t1\t${fam[$i]}\t${nest[$i]}\t${flag[$i]}\n">> $outsca
+			fi
+		done
+		rm $insca
+		cat $outsca | sort -k 2 -n >> $tempout
+		rm $outsca
+		unset list
+		unset bng end sin fam flag
+		echo -ne "Terminado o scaffold" $s"/"$gegr "\t"
+		date
+	fi
+	if [ $round -gt 1 ] && [[ " ${pbsca[*]} " != *" $s "* ]];
+        then
+                awk '{if ($1 == "'${sca[$s]}'") print $0}' $in | sort -k 2 -n >> $tempout # nada a fazer aqui! =)
+	fi
+done
+if [[ $marca -gt 0 ]];
+then
+	let "round=round+1"
+	echo -ne "Encontrados pelo menos $marca problemas de sobreposição exagerada\nRodando novamente... round " $round" "
+#	arq="caralho"$round
+#	awk '{print $2"\t"$3"\t"$8}' $tempout > $arq
+	comando="$loc/filtro $tempout $round ${npbsca[@]}"
+	echo $comando
+	eval $comando
+else
+	cat $tempout > $out
+	echo -ne "\nFiltro terminado!\n\n"
+fi
+rm $tempout

@@ -1,0 +1,24 @@
+# ! /usr/bin/ksh
+# script to separate the sequences and run MGEScan
+# Usage: run_mgescan fasta_file
+if [ -z $1 ];
+then
+        echo -ne "\nThis script runs MGEScan.\n"
+        echo -ne "Usage: run_mgescan fasta_file\n\nNext time do it right!\n\n"
+        exit
+fi
+dir=`pwd`
+fasta=$1
+echo -ne "\nStarted! "
+date
+echo -ne "Running: substituindo caracteres não aceitos... "
+sed -i '/>/! s/[UWSMKRYBDHVQL]/N/g' $fasta
+echo -ne "separa... "
+/disk05/laurajs/bin/scripts/separa $fasta seq
+rm $fasta
+echo -ne "MGEScan..."
+/usr/local/MGEScan1.3/run_MGEScan_all.pl -genome=$dir -data=$dir -hmmerv=3 -program=B
+echo -ne "DONE!\n"
+echo -n "Ended! "
+date
+echo
