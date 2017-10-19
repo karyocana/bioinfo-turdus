@@ -22,8 +22,7 @@ RUN apt-get -y install unzip --assume-yes
 RUN apt-get -y install git --assume-yes
 RUN apt-get -y install -f
 RUN apt-get -y install gawk
-#RUN apt-get -y install devscripts build-essential
-RUN apt-get build-dep gawk
+RUN apt-get -y install devscripts build-essential
 
 # Libraries GenomeTools
 RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
