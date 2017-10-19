@@ -11,7 +11,8 @@ MAINTAINER Kary Ocana "karyanna@gmail.com"
 #RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential && apt-get -y install dialog
 
 #RUN apt-get -y update && apt-get -y upgrade 
-RUN apt-get -y update && apt-get install -y --no-install-recommends apt-utils
+RUN apt-get -y update 
+# && apt-get install -y --no-install-recommends apt-utils
 RUN apt-get -y install build-essential
 RUN apt-get -y install wget --assume-yes
 RUN apt-get -y install tar --assume-yes
@@ -22,6 +23,9 @@ RUN apt-get -y install -f
 RUN apt-get -y install gawk
 RUN apt-get -y install devscripts build-essential
 RUN apt-get build-dep gawk
+RUN apt-get -y install dialog apt-utils
+  
+
 
 # Libraries GenomeTools
 RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
