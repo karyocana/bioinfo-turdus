@@ -38,10 +38,10 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.
     cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
     cd /tmp && \
     tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
-	gunzip isb-2.6.0+-changes-vers2.patch.gz && \
+	gunzip isb-2.6.0+-changes-vers2.patch.gz
 
 	# Patch
-	cd ncbi-blast-2.6.0+-src
+	cd ncbi-blast-2.6.0+-src && \
 	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
 	
 	# Build
