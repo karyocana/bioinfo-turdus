@@ -25,7 +25,7 @@ RUN apt-get -y install unzip --assume-yes
 RUN apt-get -y install git --assume-yes
 RUN apt-get -y install -f
 RUN apt-get -y install gawk
-RUN apt-get -y install devscripts build-essential
+#RUN apt-get -y install devscripts build-essential
 RUN apt-get -y install cpio
 
 # Libraries GenomeTools
@@ -61,7 +61,7 @@ RUN apt-get -y install libgtk-3-dev build-essential checkinstall
 
 
 # ======================================
-# --- RepeatmMasker AND Dependencies ---
+# --- RepeatMasker AND Dependencies ---
 # ======================================
 
 # RepeatMasker (http://www.repeatmasker.org/RMDownload.html)
