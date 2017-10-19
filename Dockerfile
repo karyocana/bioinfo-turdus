@@ -17,7 +17,7 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 # ====================================
 
 # Libraries
-RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev &&
+RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
 
 # GenomeTools
 RUN wget http://genometools.org/pub/genometools-1.5.9.tar.gz && \
