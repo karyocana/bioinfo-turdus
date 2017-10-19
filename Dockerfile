@@ -31,21 +31,21 @@ RUN apt-get -y install -f
 
 # RMBlast (download page: http://www.repeatmasker.org/RMBlast.html)Configure RepeatMasker: To use the new search engine with RepeatMasker or RepeatModeler, run/re-run the configure program in the RepeatMasker directory followed by the configure program in the RepeatModeler directory.
 RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-src.tar.gz && \
- 	wget http://www.repeatmasker.org/isb-2.6.0+-changes-vers2.patch.gz && \
+ 	wget http://www.repeatmasker.org/isb-2.6.0+-changes-vers2.patch.gz
 
 	# Unpack Distribution:
-	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
+RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
     cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
     cd /tmp && \
     tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
 	gunzip isb-2.6.0+-changes-vers2.patch.gz
 
 	# Patch
-	cd ncbi-blast-2.6.0+-src && \
+RUN	cd ncbi-blast-2.6.0+-src && \
 	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
 	
 	# Build
-	cd ncbi-blast-2.6.0+-src/c++ && \
+RUN	cd ncbi-blast-2.6.0+-src/c++ && \
 	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
 	make && \
 	make install
