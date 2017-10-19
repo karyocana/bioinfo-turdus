@@ -24,6 +24,8 @@ RUN apt-get -y install -f
 RUN apt-get -y install gawk
 RUN apt-get -y install devscripts build-essential
 
+ARG DEBIAN_FRONTEND noninteractive
+
 # Libraries GenomeTools
 RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
 RUN apt-get -y install zlib1g-dev --assume-yes
