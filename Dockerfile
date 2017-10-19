@@ -8,8 +8,10 @@ MAINTAINER Kary Ocana "karyanna@gmail.com"
 # --- Linux ---
 # =============
 
-RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential && apt-get -y install dialog
+#RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential && apt-get -y install dialog
 
+RUN apt-get -y update && apt-get -y upgrade 
+#RUN apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential && apt-get -y install dialog
 
 
 # ====================================
