@@ -12,6 +12,7 @@ MAINTAINER Kary Ocana "karyanna@gmail.com"
 
 #RUN apt-get -y update && apt-get -y upgrade 
 RUN apt-get -y update 
+RUN apt-get -y install dialog apt-utils
 # && apt-get install -y --no-install-recommends apt-utils
 RUN apt-get -y install build-essential
 RUN apt-get -y install wget --assume-yes
@@ -23,8 +24,8 @@ RUN apt-get -y install -f
 RUN apt-get -y install gawk
 RUN apt-get -y install devscripts build-essential
 RUN apt-get build-dep gawk
-RUN apt-get -y install dialog apt-utils
-  
+
+
 
 
 # Libraries GenomeTools
