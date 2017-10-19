@@ -15,11 +15,25 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends apt-utils
 RUN apt-get -y install build-essential
 RUN apt-get -y install wget --assume-yes
 RUN apt-get -y install tar --assume-yes
+RUN apt-get -y install zip --assume-yes
+RUN apt-get -y install unzip --assume-yes
 RUN apt-get -y install git --assume-yes
 RUN apt-get -y install -f
+RUN apt-get install gawk
 
-
-
+# Libraries GenomeTools
+RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
+RUN apt-get -y install zlib1g-dev --assume-yes
+RUN apt-get -y install bzip2 --assume-yes
+#RUN apt-get -y install lib32z1 lib32ncurses5 libbz2-1.0:i386 lib32stdc++6 --assume-yes
+RUN apt-get -y install liblua5.1-0 --assume-yes
+RUN apt-get -y install lua-filesystem --assume-yes
+RUN apt-get -y install lua-lpeg --assume-yes
+RUN apt-get -y install lua-md5 --assume-yes
+RUN apt-get -y install libexpat1 --assume-yes
+RUN apt-get -y install libtre-dev --assume-yes
+RUN apt-get -y install libsqlite3-dev --assume-yes
+RUN apt-get -y install libbam-dev --assume-yes
 
 # ======================================
 # --- RepeatmMasker AND Dependencies ---
@@ -96,20 +110,6 @@ RUN	cd /usr/local/RepeatMasker && \
 # ====================================
 # --- GenomeTools AND Dependencies ---
 # ====================================
-
-# Libraries
-RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
-RUN apt-get -y install zlib1g-dev --assume-yes
-RUN apt-get -y install bzip2 --assume-yes
-#RUN apt-get -y install lib32z1 lib32ncurses5 libbz2-1.0:i386 lib32stdc++6 --assume-yes
-RUN apt-get -y install liblua5.1-0 --assume-yes
-RUN apt-get -y install lua-filesystem --assume-yes
-RUN apt-get -y install lua-lpeg --assume-yes
-RUN apt-get -y install lua-md5 --assume-yes
-RUN apt-get -y install libexpat1 --assume-yes
-RUN apt-get -y install libtre-dev --assume-yes
-RUN apt-get -y install libsqlite3-dev --assume-yes
-RUN apt-get -y install libbam-dev --assume-yes
 
 # GenomeTools
 RUN apt-get -y install genometools
