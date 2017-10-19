@@ -8,12 +8,15 @@ MAINTAINER Kary Ocana "karyanna@gmail.com"
 # --- Linux ---
 # =============
 
+ENV DEBIAN_FRONTEND noninteractive
+
 #RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential && apt-get -y install dialog
 
 #RUN apt-get -y update && apt-get -y upgrade 
 RUN apt-get -y update 
 RUN apt-get -y install dialog apt-utils
 # && apt-get install -y --no-install-recommends apt-utils
+
 RUN apt-get -y install build-essential
 RUN apt-get -y install wget --assume-yes
 RUN apt-get -y install tar --assume-yes
@@ -23,8 +26,7 @@ RUN apt-get -y install git --assume-yes
 RUN apt-get -y install -f
 RUN apt-get -y install gawk
 RUN apt-get -y install devscripts build-essential
-
-ARG DEBIAN_FRONTEND noninteractive
+RUN apt-get -y install cpio
 
 # Libraries GenomeTools
 RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
@@ -39,6 +41,24 @@ RUN apt-get -y install libexpat1 --assume-yes
 RUN apt-get -y install libtre-dev --assume-yes
 RUN apt-get -y install libsqlite3-dev --assume-yes
 RUN apt-get -y install libbam-dev --assume-yes
+
+# Libraries Blast
+RUN apt-get -y install libboost-all-dev
+RUN apt-get -y install gcc
+RUN apt-get -y install libgtk-3-dev build-essential checkinstall
+
+#sss, sssutils, sssdb, vdb, libunwind,
+#                     z, bz2, lzo, pcre, mbedtls,
+#                     gmp, gcrypt, nettle, gnutls, openssl, krb5, boost, lmdb,
+#                     sybase, ftds, mysql, opengl, mesa, glut, glew,
+#                     wxwidgets, freetype, ftgl, fastcgi, bdb, orbacus, odbc,
+#                     python, perl, jni, sqlite3, mimetic, sge, icu, sp, expat,
+#                     sablot, libxml, libxslt, libexslt, xerces, xalan, zorba,
+#                     oechem, muparser, hdf5, gif, jpeg, png, tiff, xpm, magic,
+#                     curl, gsoap, avro, cereal, sasl2,
+#                     mongodb, mongodb3, gmock, lapack,
+#                     libuv, libssh2, cassandra, libxlsxwriter, grpc
+
 
 # ======================================
 # --- RepeatmMasker AND Dependencies ---
