@@ -41,11 +41,11 @@ RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
 	gunzip isb-2.6.0+-changes-vers2.patch.gz
 
 	# Patch
-RUN	cd ncbi-blast-2.6.0+-src && \
+RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
 	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
 	
 	# Build
-RUN	cd c++ && \
+RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
 	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
 	make && \
 	make install
