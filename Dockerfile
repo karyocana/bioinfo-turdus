@@ -86,11 +86,34 @@ RUN apt-get -y install automake autoconf libtool
 RUN apt-get -y install xsltproc 
 RUN apt-get -y install libexpat-dev
 
+RUN apt-get -y install python-dev libxml2-dev libxslt-dev libz-dev libxslt1-dev
+RUN apt-get -y install libming-util
+RUN update-alternatives --config libxerces
+RUN apt-get -y install libxalan110-dev
+RUN apt-get -y install libmuparser2
+RUN apt-get -y install libhdf5-serial-dev
+RUN apt-get -y install git
+RUN apt-get -y install libjpeg libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev
+RUN apt-get -y install libpng-dev
+RUN apt-get -y install zlib1g-dev
+RUN apt-get -y install libjpeg-dev liblzma-dev liblz-dev zlib1g-dev
+RUN apt-get -y install make g++
+RUN apt-get -y install libgd2-xpm-dev
+RUN apt-get -y install magic
+RUN apt-get -y install curl libcurl3 libcurl3-dev php5-curl
+RUN apt-get -y install gsoap
+RUN apt-get -y install ibus-avro-trusty
+RUN apt-get -y install cereal
+RUN apt-get -y install sasl2-bin
+RUN apt-get -y install mongodb-org
+RUN apt-get -y install google-mock
+RUN apt-get -y install liblapack-dev liblapack-doc-man liblapack-doc liblapack-pic liblapack3 liblapack-test liblapack3gf liblapacke liblapacke-dev
+RUN apt-get -y install libuv
+RUN apt-get -y install openssh-sftp-server
+RUN apt-get -y install build-essential autoconf libtool
 
-
-#NO FOUND: sss, sssutils, sssdb, krb5, sybase, mysql (instalado), bdb, orbacus, odbc, python, perl, sge, 
-#FOUND: vdb, libunwind, z, bz2, lzo, pcre, mbedtls, gmp, gcrypt, nettle, gnutls, openssl, boost, lmdb, ftds, opengl, mesa, glut, glew, wxwidgets, freetype, ftgl, fastcgi, jni, sqlite3, mimetic, icu, sp, expat, 
-#sablot, libxml, libxslt, libexslt, xerces, xalan, zorba, oechem, muparser, hdf5, gif, jpeg, png, tiff, xpm, magic, curl, gsoap, avro, cereal, sasl2, mongodb, mongodb3, gmock, lapack, libuv, libssh2, cassandra, libxlsxwriter, grpc
+#NO FOUND: sss, sssutils, sssdb, krb5, sybase, mysql (instalado), bdb, orbacus, odbc, python, perl, sge, sablot,zorba, oechem,cassandra,libxlsxwriter, 
+#FOUND: vdb, libunwind, z, bz2, lzo, pcre, mbedtls, gmp, gcrypt, nettle, gnutls, openssl, boost, lmdb, ftds, opengl, mesa, glut, glew, wxwidgets, freetype, ftgl, fastcgi, jni, sqlite3, mimetic, icu, sp, expat, libxml, libxslt, libexslt, xerces, xalan, muparser, hdf5, gif, jpeg, png, tiff, xpm, magic, curl, gsoap, avro, cereal, sasl2, mongodb, mongodb3, gmock, lapack, libuv, libssh2,  grpc
 
 
 # ======================================
@@ -127,7 +150,7 @@ RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
 RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
 	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
 	make && \
-	make install
+#	make install
 
 # HMMER (http://hmmer.org/)
 RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
