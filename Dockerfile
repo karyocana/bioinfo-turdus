@@ -87,7 +87,7 @@ RUN apt-get -y install xsltproc
 RUN apt-get -y install libexpat-dev
 
 RUN apt-get -y install python-dev libxml2-dev libxslt-dev libz-dev libxslt1-dev
-RUN apt-get -y install libming-util
+RUN apt-get -y install libming-dev
 RUN update-alternatives --config libxerces
 RUN apt-get -y install libxalan110-dev
 RUN apt-get -y install libmuparser2
