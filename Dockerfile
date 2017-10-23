@@ -43,21 +43,54 @@ RUN apt-get -y install libsqlite3-dev --assume-yes
 RUN apt-get -y install libbam-dev --assume-yes
 
 # Libraries Blast
-RUN apt-get -y install libboost-all-dev
 RUN apt-get -y install gcc
 RUN apt-get -y install libgtk-3-dev build-essential checkinstall
+RUN apt-get -y install libncbi-vdb-dev
+RUN apt-get -y install libunwind-setjmp0-dev
+RUN apt-get -y install zsh
+RUN apt-get -y install liblzo2-2 liblzo2-dev
+RUN apt-get -y install libpcre3 libpcre3-dev
+RUN apt-get -y install libmbedcrypto0 libmbedx509-0 libmbedtls-dev
+RUN apt-get -y install libgmp3-dev
+RUN apt-get -y install libgcrypt11-dev gcc #sudo apt-get install libgcrypt11-dev # 
+RUN apt-get -y install nettle-dev
+RUN apt-get -y install gnutls-bin
+RUN apt-get -y install libssl-dev
+RUN apt-get -y install libboost-all-dev
+RUN apt-get -y install libffi-dev python-dev build-essential
+#RUN apt-get -y update && apt-get -y dist-upgrade && apt-get -y clean && apt-get -y install tomcat6
+#OpenGL
+RUN apt-get -y update
+RUN apt-get -y install freeglut3
+RUN apt-get -y install freeglut3-dev
+RUN apt-get -y install binutils-gold
+RUN apt-get -y install g++ cmake
+RUN apt-get -y install libglew-dev
+RUN apt-get -y install g++
+RUN apt-get -y install mesa-common-dev
+RUN apt-get -y install build-essential
+RUN apt-get -y install libglew1.5-dev libglm-dev
 
-#sss, sssutils, sssdb, vdb, libunwind,
-#                     z, bz2, lzo, pcre, mbedtls,
-#                     gmp, gcrypt, nettle, gnutls, openssl, krb5, boost, lmdb,
-#                     sybase, ftds, mysql, opengl, mesa, glut, glew,
-#                     wxwidgets, freetype, ftgl, fastcgi, bdb, orbacus, odbc,
-#                     python, perl, jni, sqlite3, mimetic, sge, icu, sp, expat,
-#                     sablot, libxml, libxslt, libexslt, xerces, xalan, zorba,
-#                     oechem, muparser, hdf5, gif, jpeg, png, tiff, xpm, magic,
-#                     curl, gsoap, avro, cereal, sasl2,
-#                     mongodb, mongodb3, gmock, lapack,
-#                     libuv, libssh2, cassandra, libxlsxwriter, grpc
+RUN apt-get -y install libwxgtk3.0-dev
+RUN apt-get -y update &&  apt-get -y install libfreetype6
+RUN apt-get -y install ftgl-dev
+#RUN apt-get -y install libapache2-mod-fastcgi
+#RUN apt-get -y install openjdk-6-jdk 
+RUN apt-get -y install sqlite3 libsqlite3-dev
+RUN apt-get -y install libmimetic0v5
+RUN apt-get -y install libicu-dev
+RUN apt-get -y install libapache2-mod-shib2
+
+#xpat
+RUN apt-get -y install automake autoconf libtool 
+RUN apt-get -y install xsltproc 
+RUN apt-get -y install libexpat-dev
+
+
+
+#NO FOUND: sss, sssutils, sssdb, krb5, sybase, mysql (instalado), bdb, orbacus, odbc, python, perl, sge, 
+#FOUND: vdb, libunwind, z, bz2, lzo, pcre, mbedtls, gmp, gcrypt, nettle, gnutls, openssl, boost, lmdb, ftds, opengl, mesa, glut, glew, wxwidgets, freetype, ftgl, fastcgi, jni, sqlite3, mimetic, icu, sp, expat, 
+#sablot, libxml, libxslt, libexslt, xerces, xalan, zorba, oechem, muparser, hdf5, gif, jpeg, png, tiff, xpm, magic, curl, gsoap, avro, cereal, sasl2, mongodb, mongodb3, gmock, lapack, libuv, libssh2, cassandra, libxlsxwriter, grpc
 
 
 # ======================================
@@ -66,6 +99,13 @@ RUN apt-get -y install libgtk-3-dev build-essential checkinstall
 
 # RepeatMasker (http://www.repeatmasker.org/RMDownload.html)
 
+# RepeatMasker
+RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
+	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
+	cd /usr/local && \ 
+	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
+	tar xvf RepeatMasker-open-4-0-7.tar 
+
 # For Cross_Match (http://www.phrap.org): local "databases/crossmatch.tar.gz", obtido da caprichosa
 
 # RMBlast (download page: http://www.repeatmasker.org/RMBlast.html)Configure RepeatMasker: To use the new search engine with RepeatMasker or RepeatModeler, run/re-run the configure program in the RepeatMasker directory followed by the configure program in the RepeatModeler directory.
@@ -73,21 +113,21 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.
  	wget http://www.repeatmasker.org/isb-2.6.0+-changes-vers2.patch.gz
 
 	# Unpack Distribution:
-#RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
-#    cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
-#    cd /tmp && \
-#    tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
-#	gunzip isb-2.6.0+-changes-vers2.patch.gz
+RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
+    cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
+    cd /tmp && \
+    tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
+	gunzip isb-2.6.0+-changes-vers2.patch.gz
 
 	# Patch
-#RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
-#	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
+RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
+	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
 	
 	# Build
-#RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
-#	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
-#	make && \
-#	make install
+RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
+	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
+	make && \
+	make install
 
 # HMMER (http://hmmer.org/)
 RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
@@ -102,33 +142,37 @@ RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64
 
 # TRF -> click -> local "databases/trf",
 
-# RepeatMasker Libraries
-RepeatMasker now comes with two small, but growing open databases ( Dfam and Dfam_consensus ) and will work out-of-the box with these datasets. However it is advised that you also obtain a license for the RepBase RepeatMasker Edition to supplement these sequences. To obtain a license and download the library go to http://www.girinst.org. Once you have obtain the library ( current version is RepBaseRepeatMaskerEdition-20170127.tar.gz ) file from GIRI unpack it in the RepeatMasker directory and it will automatically place the contents in the correct subdirectories.
+# RepeatMasker Libraries: RepeatMasker now comes with two small, but growing open databases ( Dfam and Dfam_consensus ) and will work out-of-the box with these datasets. However it is advised that you also obtain a license for the RepBase RepeatMasker Edition to supplement these sequences. To obtain a license and download the library go to http://www.girinst.org. Once you have obtain the library ( current version is RepBaseRepeatMaskerEdition-20170127.tar.gz ) file from GIRI unpack it in the RepeatMasker directory and it will automatically place the contents in the correct subdirectories.
 
     # RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
-RUN cp RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
-	cd /usr/local/RepeatMasker && \ 
-	gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz && \ 
-	tar xvf RepBaseRepeatMaskerEdition-20170127.tar && \ 
-	rm RepBaseRepeatMaskerEdition-20170127.tar
+#RUN cp RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
+#	cd /usr/local/RepeatMasker && \ 
+#	gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz && \ 
+#	tar xvf RepBaseRepeatMaskerEdition-20170127.tar && \ 
+#	rm RepBaseRepeatMaskerEdition-20170127.tar
 
-    # Dfam Updates
-RUN wget http://www.dfam.org/web_download/Release/Dfam_2.0/Dfam.hmm.gz
-	cp Dfam.hmm.gz /usr/local/RepeatMasker/Libraries && \ 
-	cd /usr/local/RepeatMasker/Libraries && \ 
-	gunzip Dfam.hmm.gz && \ 
-	rm Dfam.hmm.gz
-
-# RepeatMasker
-RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
-	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
-	cd /usr/local && \ 
-	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
-	tar xvf RepeatMasker-open-4-0-7.tar 
+    # Dfam (só precisa Updates)
+#RUN wget http://www.dfam.org/web_download/Release/Dfam_2.0/Dfam.hmm.gz && \ 
+#	cp Dfam.hmm.gz /usr/local/RepeatMasker/Libraries && \ 
+#	cd /usr/local/RepeatMasker/Libraries && \ 
+#	gunzip Dfam.hmm.gz && \ 
+#	rm Dfam.hmm.gz
 
 # Run RepeatMasker Configure Script (depois que o "databases" estiver apontado e todas as depências estiverem instaladas)
-RUN	cd /usr/local/RepeatMasker && \ 
-	perl ./configure
+###RUN	cd /usr/local/RepeatMasker && \ 
+###	perl ./configure
+
+# enter to continue
+# Enter path [ /usr/bin/perl ]: 
+# Enter path [ /usr/local/RepeatMasker ]: # Building Fasta database
+# Enter path [ /home/programs/trf ]: 
+# Add a Search Engine:
+#   1. CrossMatch: [ Un-configured ]
+#   2. RMBlast - NCBI Blast with RepeatMasker extensions: [ Un-configured ]
+#   3. WUBlast/ABBlast (required by DupMasker): [ Un-configured ]
+#   4. HMMER3.1 & DFAM: [ Un-configured ]
+#   5. Done
+# Enter Selection: 
 
 
 
