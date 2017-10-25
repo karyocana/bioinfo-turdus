@@ -172,7 +172,7 @@ RUN	cd /usr/local/ncbi-blast-2.6.0+-src && \
 	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
 	
 	# Build
-RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
+RUN	cd /usr/local/ncbi-blast-2.6.0+-src/c++ && \
 	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
 	make && \
 	make install
