@@ -123,6 +123,9 @@ RUN apt-get -y install -y freetds-bin freetds-common freetds-dev libct4 libsybdb
 # Install Perl
 RUN apt-get -y install perl
 
+# Installing MySQL
+RUN apt-get -y update
+RUN apt-get -y install mysql-server
 
 
 #NO FOUND: sss, sssutils, sssdb, krb5, sybase, mysql (instalado), bdb, orbacus, odbc, python, perl, sge, sablot,zorba, oechem,cassandra,libxlsxwriter, 
@@ -173,9 +176,16 @@ RUN	cd /usr/local/ncbi-blast-2.6.0+-src && \
 	
 	# Build
 RUN	cd /usr/local/ncbi-blast-2.6.0+-src/c++ && \
-	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
-	make && \
-	make install
+#	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
+#	make && \
+#	make install
+	./configure CFLAGS="-O3 -march=corei7-avx -mfpmath=sse" CXXFLAGS="-O3 -march=corei7-avx -mfpmath=sse" \
+        --prefix=/usr/local/rmblast \
+        --with-dll --with-algo --with-serial --with-openmp --with-64 \
+        --with-check --with-hard-runpath --with-lfs \
+        --with-boost=${BOOSTDIR} --with-z=${ZLIBDIR} --with-bz2=${BZIP2DIR} --with-lapack=${LAPACKDIR}
+
+
 
 # HMMER (http://hmmer.org/)
 RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
