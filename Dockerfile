@@ -149,21 +149,21 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.
  	wget http://www.repeatmasker.org/isb-2.6.0+-changes-vers2.patch.gz
 
 	# Unpack Distribution:
-RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
-    cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
-    cd /tmp && \
-    tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
-	gunzip isb-2.6.0+-changes-vers2.patch.gz
+#RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
+#    cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
+#    cd /tmp && \
+#    tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
+#	gunzip isb-2.6.0+-changes-vers2.patch.gz
 
 	# Patch
-RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
-	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
+#RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
+#	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
 	
 	# Build
-RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
-	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
-	make && \
-	make install
+#RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
+#	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
+#	make && \
+#	make install
 
 # HMMER (http://hmmer.org/)
 RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
@@ -219,3 +219,15 @@ RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64
 # GenomeTools
 RUN apt-get -y install genometools
 RUN apt-get -y install libgenometools0 libgenometools0-dev
+
+
+# ====================================
+# --- MITE-Hunter AND Dependencies ---
+# ====================================
+
+RUN apt-get -y install blast2
+RUN apt-get -y install muscle
+RUN wget ftp://occams.dfci.harvard.edu/pub/bio/tgi/software/seqclean/mdust.tar.gz && \ 
+tar -xvzf mdust.tar.gz && \ 
+cd mdust && \ 
+make
