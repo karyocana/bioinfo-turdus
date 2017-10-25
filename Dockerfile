@@ -178,7 +178,7 @@ RUN	cd /usr/local/ncbi-blast-2.6.0+-src/c++ && \
         --prefix=/usr/local/rmblast \
         --with-dll --with-algo --with-serial --with-openmp --with-64 \
         --with-check --with-hard-runpath --with-lfs \
-        --with-boost=${BOOSTDIR} --with-z=${ZLIBDIR} --with-bz2=${BZIP2DIR} --with-lapack=${LAPACKDIR}
+        --with-boost=${BOOSTDIR} --with-z=${ZLIBDIR} --with-bz2=${BZIP2DIR} --with-lapack=${LAPACKDIR} && \
 	make && \
 	make install
 
