@@ -56,7 +56,7 @@ RUN apt-get -y install libgcrypt11-dev gcc #sudo apt-get install libgcrypt11-dev
 RUN apt-get -y install nettle-dev
 RUN apt-get -y install gnutls-bin
 RUN apt-get -y install libssl-dev
-RUN apt-get -y install libboost-all-dev
+RUN apt-get -y install libboost-all-dev libboost-dev
 RUN apt-get -y install libffi-dev python-dev build-essential
 #RUN apt-get -y update && apt-get -y dist-upgrade && apt-get -y clean && apt-get -y install tomcat6
 #OpenGL
@@ -129,6 +129,18 @@ RUN apt-get -y install perl
 #FOUND: vdb, libunwind, z, bz2, lzo, pcre, mbedtls, gmp, gcrypt, nettle, gnutls, openssl, boost, lmdb, ftds, opengl, mesa, glut, glew, wxwidgets, freetype, ftgl, fastcgi, jni, sqlite3, mimetic, icu, sp, expat, libxml, libxslt, libexslt, xerces, xalan, muparser, hdf5, gif, jpeg, png, tiff, xpm, magic, curl, gsoap, avro, cereal, sasl2, mongodb, mongodb3, gmock, lapack, libuv, libssh2,  grpc
 
 
+# ====================================
+# --- MITE-Hunter AND Dependencies ---
+# ====================================
+
+RUN apt-get -y install blast2
+RUN apt-get -y install muscle
+RUN wget ftp://occams.dfci.harvard.edu/pub/bio/tgi/software/seqclean/mdust.tar.gz && \ 
+tar -xvzf mdust.tar.gz && \ 
+cd mdust && \ 
+make
+
+
 # ======================================
 # --- RepeatMasker AND Dependencies ---
 # ======================================
@@ -149,21 +161,21 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.
  	wget http://www.repeatmasker.org/isb-2.6.0+-changes-vers2.patch.gz
 
 	# Unpack Distribution:
-#RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
-#    cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
-#    cd /tmp && \
-#    tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
-#	gunzip isb-2.6.0+-changes-vers2.patch.gz
+RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
+    cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
+    cd /tmp && \
+    tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
+	gunzip isb-2.6.0+-changes-vers2.patch.gz
 
 	# Patch
-#RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
-#	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
+RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
+	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
 	
 	# Build
-#RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
-#	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
-#	make && \
-#	make install
+RUN	cd /tmp/ncbi-blast-2.6.0+-src/c++ && \
+	./configure --with-mt --prefix=/usr/local/rmblast --without-debug && \
+	make && \
+	make install
 
 # HMMER (http://hmmer.org/)
 RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
@@ -220,14 +232,3 @@ RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64
 RUN apt-get -y install genometools
 RUN apt-get -y install libgenometools0 libgenometools0-dev
 
-
-# ====================================
-# --- MITE-Hunter AND Dependencies ---
-# ====================================
-
-RUN apt-get -y install blast2
-RUN apt-get -y install muscle
-RUN wget ftp://occams.dfci.harvard.edu/pub/bio/tgi/software/seqclean/mdust.tar.gz && \ 
-tar -xvzf mdust.tar.gz && \ 
-cd mdust && \ 
-make
