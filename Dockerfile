@@ -161,14 +161,14 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.
  	wget http://www.repeatmasker.org/isb-2.6.0+-changes-vers2.patch.gz
 
 	# Unpack Distribution:
-RUN	cp ncbi-blast-2.6.0+-src.tar.gz /tmp && \
-    cp isb-2.6.0+-changes-vers2.patch.gz /tmp && \
-    cd /tmp && \
+RUN	cp ncbi-blast-2.6.0+-src.tar.gz /usr/local && \
+    cp isb-2.6.0+-changes-vers2.patch.gz /usr/local && \
+    cd /usr/local && \
     tar zxvf ncbi-blast-2.6.0+-src.tar.gz && \
 	gunzip isb-2.6.0+-changes-vers2.patch.gz
 
 	# Patch
-RUN	cd /tmp/ncbi-blast-2.6.0+-src && \
+RUN	cd /usr/local/ncbi-blast-2.6.0+-src && \
 	patch -p1 < ../isb-2.6.0+-changes-vers2.patch
 	
 	# Build
