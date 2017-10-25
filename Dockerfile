@@ -123,11 +123,6 @@ RUN apt-get -y install -y freetds-bin freetds-common freetds-dev libct4 libsybdb
 # Install Perl
 RUN apt-get -y install perl
 
-# Installing MySQL
-RUN apt-get -y update
-RUN apt-get -y install mysql-server
-
-
 #NO FOUND: sss, sssutils, sssdb, krb5, sybase, mysql (instalado), bdb, orbacus, odbc, python, perl, sge, sablot,zorba, oechem,cassandra,libxlsxwriter, 
 #FOUND: vdb, libunwind, z, bz2, lzo, pcre, mbedtls, gmp, gcrypt, nettle, gnutls, openssl, boost, lmdb, ftds, opengl, mesa, glut, glew, wxwidgets, freetype, ftgl, fastcgi, jni, sqlite3, mimetic, icu, sp, expat, libxml, libxslt, libexslt, xerces, xalan, muparser, hdf5, gif, jpeg, png, tiff, xpm, magic, curl, gsoap, avro, cereal, sasl2, mongodb, mongodb3, gmock, lapack, libuv, libssh2,  grpc
 
