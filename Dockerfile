@@ -12,47 +12,47 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential
 
-RUN apt-get -y install build-essential
-RUN apt-get -y install wget --assume-yes
-RUN apt-get -y install tar --assume-yes
-RUN apt-get -y install zip --assume-yes
-RUN apt-get -y install unzip --assume-yes
-RUN apt-get -y install git --assume-yes
-RUN apt-get -y install -f
-RUN apt-get -y install gawk
-#RUN apt-get -y install devscripts build-essential
-RUN apt-get -y install cpio
+#RUN apt-get -y install build-essential
+#RUN apt-get -y install wget --assume-yes
+#RUN apt-get -y install tar --assume-yes
+#RUN apt-get -y install zip --assume-yes
+#RUN apt-get -y install unzip --assume-yes
+#RUN apt-get -y install git --assume-yes
+#RUN apt-get -y install -f
+#RUN apt-get -y install gawk
+###RUN apt-get -y install devscripts build-essential
+#RUN apt-get -y install cpio
 
 # Libraries GenomeTools
-RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
-RUN apt-get -y install zlib1g-dev --assume-yes
-RUN apt-get -y install bzip2 --assume-yes
-#RUN apt-get -y install lib32z1 lib32ncurses5 libbz2-1.0:i386 lib32stdc++6 --assume-yes
-RUN apt-get -y install liblua5.1-0 --assume-yes
-RUN apt-get -y install lua-filesystem --assume-yes
-RUN apt-get -y install lua-lpeg --assume-yes
-RUN apt-get -y install lua-md5 --assume-yes
-RUN apt-get -y install libexpat1 --assume-yes
-RUN apt-get -y install libtre-dev --assume-yes
-RUN apt-get -y install libsqlite3-dev --assume-yes
-RUN apt-get -y install libbam-dev --assume-yes
+#RUN apt-get -y install libcairo2-dev && apt-get -y install libpango1.0-dev
+#RUN apt-get -y install zlib1g-dev --assume-yes
+#RUN apt-get -y install bzip2 --assume-yes
+##RUN apt-get -y install lib32z1 lib32ncurses5 libbz2-1.0:i386 lib32stdc++6 --assume-yes
+#RUN apt-get -y install liblua5.1-0 --assume-yes
+#RUN apt-get -y install lua-filesystem --assume-yes
+#RUN apt-get -y install lua-lpeg --assume-yes
+#RUN apt-get -y install lua-md5 --assume-yes
+#RUN apt-get -y install libexpat1 --assume-yes
+#RUN apt-get -y install libtre-dev --assume-yes
+#RUN apt-get -y install libsqlite3-dev --assume-yes
+#RUN apt-get -y install libbam-dev --assume-yes
 
 # Libraries Blast
-RUN apt-get -y install gcc
-RUN apt-get -y install libgtk-3-dev build-essential checkinstall
-RUN apt-get -y install libncbi-vdb-dev
-RUN apt-get -y install libunwind-setjmp0-dev
-RUN apt-get -y install zsh
-RUN apt-get -y install liblzo2-2 liblzo2-dev
-RUN apt-get -y install libpcre3 libpcre3-dev
-RUN apt-get -y install libmbedcrypto0 libmbedx509-0 libmbedtls-dev
-RUN apt-get -y install libgmp3-dev
-RUN apt-get -y install libgcrypt11-dev gcc #sudo apt-get install libgcrypt11-dev # 
-RUN apt-get -y install nettle-dev
-RUN apt-get -y install gnutls-bin
-RUN apt-get -y install libssl-dev
-RUN apt-get -y install libboost-all-dev libboost-dev
-RUN apt-get -y install libffi-dev python-dev build-essential
+#RUN apt-get -y install gcc
+#RUN apt-get -y install libgtk-3-dev build-essential checkinstall
+#RUN apt-get -y install libncbi-vdb-dev
+#RUN apt-get -y install libunwind-setjmp0-dev
+#RUN apt-get -y install zsh
+#RUN apt-get -y install liblzo2-2 liblzo2-dev
+#RUN apt-get -y install libpcre3 libpcre3-dev
+#RUN apt-get -y install libmbedcrypto0 libmbedx509-0 libmbedtls-dev
+#RUN apt-get -y install libgmp3-dev
+#RUN apt-get -y install libgcrypt11-dev gcc #sudo apt-get install libgcrypt11-dev # 
+#RUN apt-get -y install nettle-dev
+#RUN apt-get -y install gnutls-bin
+#RUN apt-get -y install libssl-dev
+#RUN apt-get -y install libboost-all-dev libboost-dev
+#RUN apt-get -y install libffi-dev python-dev build-essential
 
 
 # ====================================
