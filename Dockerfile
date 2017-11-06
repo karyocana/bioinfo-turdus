@@ -98,8 +98,9 @@ RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64
 # TRF -> click -> local "databases/trf",
 
 # Montar o diretório databases dentro do container em /var/tmp e executar um script BASH:
-RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
+###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 #docker run --rm --it --volume /tmp:/tmp ubuntu:14.04 /bin/bash
+docker run --rm --it --volume /tmp:/tmp ubuntu:14.04 /bin/bash
 
 
 # RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
