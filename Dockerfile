@@ -58,12 +58,12 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 # --- MITE-Hunter AND Dependencies ---
 # ====================================
 
-RUN apt-get -y install blast2
-RUN apt-get -y install muscle
-RUN wget ftp://occams.dfci.harvard.edu/pub/bio/tgi/software/seqclean/mdust.tar.gz && \ 
-tar -xvzf mdust.tar.gz && \ 
-cd mdust && \ 
-make
+###RUN apt-get -y install blast2
+###RUN apt-get -y install muscle
+###RUN wget ftp://occams.dfci.harvard.edu/pub/bio/tgi/software/seqclean/mdust.tar.gz && \ 
+###tar -xvzf mdust.tar.gz && \ 
+###cd mdust && \ 
+###make
 
 
 # ======================================
@@ -73,20 +73,20 @@ make
 # RepeatMasker (http://www.repeatmasker.org/RMDownload.html)
 
 # RepeatMasker
-RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
-	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
-	cd /usr/local && \ 
-	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
-	tar xvf RepeatMasker-open-4-0-7.tar 
+###RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
+###	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
+###	cd /usr/local && \ 
+###	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
+###	tar xvf RepeatMasker-open-4-0-7.tar 
 
 # HMMER (http://hmmer.org/)
-RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
-	tar xf hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
-	cd hmmer-3.1b2-linux-intel-x86_64 && \
- 	./configure && \
-	make && \
-	make check && \
-	make install
+###RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
+###	tar xf hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
+###	cd hmmer-3.1b2-linux-intel-x86_64 && \
+###	./configure && \
+###	make && \
+###	make check && \
+###	make install
 
 # For Cross_Match (http://www.phrap.org): local "databases/crossmatch.tar.gz", obtido da caprichosa
 
@@ -99,7 +99,12 @@ RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64
 # Montar o diretório databases dentro do container em /var/tmp e executar um script BASH:
 ###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 #docker run --rm --it --volume /tmp:/tmp ubuntu:14.04 /bin/bash
-RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
+###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
+docker run -i -t ubuntu /bin/bash
+
+
+
+
 
 # RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
 #RUN cp RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
