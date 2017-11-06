@@ -103,8 +103,8 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 #run -i -t ubuntu /bin/bash
 
 #RUN /usr/local/bin/bash -c "source /usr/local/bin/virtualenvwrapper.sh"
-RUN ln -s /bin/bash /usr/local/bin/bash
-CMD ["/bin/bash"]
+#RUN ln -s /bin/bash /usr/local/bin/bash
+#CMD ["/bin/bash"]
 RUN -v $PWD/databases/:/var/tmp -i -t debian:testing 
 
 
