@@ -10,10 +10,9 @@ MAINTAINER Kary Ocana "karyanna@gmail.com"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential
+RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential && sudo apt-get install bash
 
 #RUN apt-get -y install build-essential
-#RUN apt-get -y install wget --assume-yes
 #RUN apt-get -y install tar --assume-yes
 #RUN apt-get -y install zip --assume-yes
 #RUN apt-get -y install unzip --assume-yes
@@ -100,8 +99,7 @@ RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64
 # Montar o diretório databases dentro do container em /var/tmp e executar um script BASH:
 ###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 #docker run --rm --it --volume /tmp:/tmp ubuntu:14.04 /bin/bash
-run -i -t --volume /tmp:/tmp ubuntu:14.04 /bin/bash
-
+RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 
 # RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
 #RUN cp RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
