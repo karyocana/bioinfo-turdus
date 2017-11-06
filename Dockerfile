@@ -97,9 +97,10 @@ RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64
 
 # TRF -> click -> local "databases/trf",
 
-# RepeatMasker Libraries: RepeatMasker now comes with two small, but growing open databases ( Dfam and Dfam_consensus ) and will work out-of-the box with these datasets. However it is advised that you also obtain a license for the RepBase RepeatMasker Edition to supplement these sequences. To obtain a license and download the library go to http://www.girinst.org. Once you have obtain the library ( current version is RepBaseRepeatMaskerEdition-20170127.tar.gz ) file from GIRI unpack it in the RepeatMasker directory and it will automatically place the contents in the correct subdirectories.
+# Montar o diretório databases dentro do container em /var/tmp e executar um script BASH:
+docker run -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 
-    # RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
+# RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
 #RUN cp RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
 #	cd /usr/local/RepeatMasker && \ 
 #	gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz && \ 
@@ -136,6 +137,6 @@ RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64
 # ====================================
 
 # GenomeTools
-RUN apt-get -y install genometools
-RUN apt-get -y install libgenometools0 libgenometools0-dev
+###RUN apt-get -y install genometools
+###RUN apt-get -y install libgenometools0 libgenometools0-dev
 
