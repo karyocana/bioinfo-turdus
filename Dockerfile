@@ -107,8 +107,8 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 CMD ["/bin/bash"]
 ###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 
-RUN ["/bin/bash", "-c", "echo hello all in one string"]
-
+#RUN ["/bin/bash", "-c", "echo hello all in one string"]
+RUN ["-v", "$PWD/databases/:/var/tmp", "-i", "-t", "debian:testing", "/bin/bash", "-c"]
 
 
 # RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
