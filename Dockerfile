@@ -10,7 +10,7 @@ MAINTAINER Kary Ocana "karyanna@gmail.com"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential && sudo apt-get install bash
+RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-get -y install build-essential && apt-get install bash
 
 #RUN apt-get -y install build-essential
 #RUN apt-get -y install tar --assume-yes
