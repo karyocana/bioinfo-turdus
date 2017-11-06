@@ -100,7 +100,10 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 ###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 #docker run --rm --it --volume /tmp:/tmp ubuntu:14.04 /bin/bash
 ###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
-run -i -t ubuntu /bin/bash
+#run -i -t ubuntu /bin/bash
+
+RUN /usr/local/bin/bash -c "source /usr/local/bin/virtualenvwrapper.sh"
+
 
 
 
