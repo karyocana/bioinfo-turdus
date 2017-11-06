@@ -104,10 +104,10 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 
 #RUN /usr/local/bin/bash -c "source /usr/local/bin/virtualenvwrapper.sh"
 #RUN ln -s /bin/bash /usr/local/bin/bash
-#CMD ["/bin/bash"]
-RUN -v $PWD/databases/:/var/tmp -i -t debian:testing 
+CMD ["/bin/bash"]
+###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 
-
+RUN ["/bin/bash", "-c", "echo hello all in one string"]
 
 
 
