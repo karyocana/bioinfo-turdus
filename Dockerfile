@@ -109,7 +109,8 @@ CMD ["/bin/bash"]
 
 #RUN ["/bin/bash", "-c", "echo hello all in one string"]
 #RUN ["-v", "$PWD/databases/:/var/tmp", "-i", "-t", "debian:testing", "/bin/bash", "-c"]
-RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash -c
+ENTRYPOINT ["/bin/bash"]
+RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
 
 
 # RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
