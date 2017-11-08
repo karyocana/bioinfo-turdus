@@ -104,7 +104,7 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 
 # TRF -> click -> local "databases/trf",
 
-ENTRYPOINT ["/bin/bash scripts/config_repeatmasker.sh"]
+#ENTRYPOINT ["/bin/bash scripts/config_repeatmasker.sh"]
 
 
 
