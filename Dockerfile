@@ -65,6 +65,14 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 ###cd mdust && \ 
 ###make
 
+# ====================================
+# --- GenomeTools AND Dependencies ---
+# ====================================
+
+# GenomeTools
+###RUN apt-get -y install genometools
+###RUN apt-get -y install libgenometools0 libgenometools0-dev
+
 
 # ======================================
 # --- RepeatMasker AND Dependencies ---
@@ -96,22 +104,8 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 
 # TRF -> click -> local "databases/trf",
 
-# Montar o diretório databases dentro do container em /var/tmp e executar um script BASH:
-###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
-#docker run --rm --it --volume /tmp:/tmp ubuntu:14.04 /bin/bash
-###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
-#run -i -t ubuntu /bin/bash
+ENTRYPOINT ["/bin/bash scripts/config_repeatmasker.sh"]
 
-#RUN /usr/local/bin/bash -c "source /usr/local/bin/virtualenvwrapper.sh"
-#RUN ln -s /bin/bash /usr/local/bin/bash
-CMD ["/bin/bash"]
-###RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
-
-#RUN ["/bin/bash", "-c", "echo hello all in one string"]
-#RUN ["-v", "$PWD/databases/:/var/tmp", "-i", "-t", "debian:testing", "/bin/bash", "-c"]
-ENTRYPOINT ["/bin/bash"]
-#RUN -v $PWD/databases/:/var/tmp -i -t debian:testing /bin/bash
-run -i -v $PWD/databases/:/var/tmp -t debian:testing /bin/bash
 
 
 # RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
@@ -146,11 +140,4 @@ run -i -v $PWD/databases/:/var/tmp -t debian:testing /bin/bash
 
 
 
-# ====================================
-# --- GenomeTools AND Dependencies ---
-# ====================================
-
-# GenomeTools
-###RUN apt-get -y install genometools
-###RUN apt-get -y install libgenometools0 libgenometools0-dev
 
