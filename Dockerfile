@@ -105,22 +105,26 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 #	rm Dfam.hmm.gz
 
 # RepeatMasker
-RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
-	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
-	cd /usr/local && \ 
-	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
-	tar xvf RepeatMasker-open-4-0-7.tar 
+#RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
+#	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
+#	cd /usr/local && \ 
+#	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
+#	tar xvf RepeatMasker-open-4-0-7.tar 
 
-RUN cp /databases/RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
-	cd /usr/local/RepeatMasker && \ 
-	gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz && \ 
-	tar xvf RepBaseRepeatMaskerEdition-20170127.tar && \ 
-	rm RepBaseRepeatMaskerEdition-20170127.tar
+# Script for configuring volume and installing repeatmasker 
+CMD echo "Hello world"  
+ENTRYPOINT echo "Hello world"  
 
+#RUN cp /databases/RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
+#	cd /usr/local/RepeatMasker && \ 
+#	gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz && \ 
+#	tar xvf RepBaseRepeatMaskerEdition-20170127.tar && \ 
+#	rm RepBaseRepeatMaskerEdition-20170127.tar
 
 # Run RepeatMasker Configure Script (depois que o "databases" estiver apontado e todas as depências estiverem instaladas)
 ###RUN	cd /usr/local/RepeatMasker && \ 
 ###	perl ./configure
+#RUN	scripts/install/install_repeatmasker.sh
 
 # enter to continue
 # Enter path [ /usr/bin/perl ]: 
