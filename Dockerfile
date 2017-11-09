@@ -116,8 +116,8 @@ RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \
 #ENTRYPOINT echo "Hello world"  
 ENTRYPOINT ["/bin/echo", "Hello world kary"]  
 
-COPY scripts/install/install_repeatmasker.sh /
-ENTRYPOINT ["/install_repeatmasker.sh"]
+#COPY scripts/install/install_repeatmasker.sh /
+#ENTRYPOINT ["/install_repeatmasker.sh"]
 
 #RUN cp /databases/RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
 #	cd /usr/local/RepeatMasker && \ 
