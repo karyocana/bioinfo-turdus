@@ -112,8 +112,9 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 #	tar xvf RepeatMasker-open-4-0-7.tar 
 
 # Script for configuring volume and installing repeatmasker 
-CMD echo "Hello world"  
-ENTRYPOINT echo "Hello world"  
+#CMD echo "Hello world"  
+#ENTRYPOINT echo "Hello world"  
+ENTRYPOINT ["/bin/echo", "Hello world kary"]  
 
 #RUN cp /databases/RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
 #	cd /usr/local/RepeatMasker && \ 
