@@ -1,0 +1,82 @@
+REPEATMASKER DATABASES
+
+The RepeatMasker program, maintained by Arian Smit and Robert Hubley
+and copyrighted at the Institute for Systems Biology is distributed
+under the Open Source License (v2.1).  The program is distributed 
+with two small but growing repeat databases:
+
+    Dfam:  A collection of Repetitive DNA Profile Hidden Markov 
+           models.
+
+    Dfam_consensus: A new database of freely available Repetitive 
+                    DNA consensus sequences either in or destined 
+                    for inclusion in Dfam.
+
+Both of these databases are distributed under a Creative Commons 
+license.  See the individual files ( Dfam.hmm or DfamConsensus.embl )
+for further details.
+
+RepeatMasker is also compatible with the RepBase database 
+( copyrighted and licensed by the Genetic Information Research 
+Institute ) which is available for download as the "RepBase 
+RepeatMasker Edition" at their website:  http://www.girinst.org
+
+
+COMPATIBILITY WITH OLDER VERSIONS OF REPEATMASKER
+
+This library distribution involves a major shift away from a monolithic
+( one source ) library format and embraces the notion that libraries may
+increasingly come from multiple sources.  Unfortunately this requires
+changes in the library structures that will not work with previous versions
+of RepeatMasker ( 4.0.6 and earlier ).  We have not removed support for 
+older libraries and versions 20140131 and on should continue to work with
+the latest releases of RepeatMasker.
+
+
+SPECIES COVERAGE
+
+The RepeatMasker software package contains in the util directory the
+script queryRepeatDatabase.pl that will print or list all repeats
+included in an analysis for an indicated species. If your query
+species is not covered or if you have a larger set of repeats
+available, you can create your own libraries and use these with
+RepeatMasker using the -lib option.
+
+
+RELATONSHIP WITH REPBASE UPDATE
+
+We're maintaining these libraries as co-editor of Repbase Update, and
+are trying to keep them in sync with the RepBase Update libraries.
+However, at any one time there are differences.  Entries can differ
+somewhat in sequence, generally not by more than a few percent.
+Reasons for this are that occasionally, independently derived
+consensus sequences thrive in either database or that updates to
+consensus sequences don't make it immediately to RepBase. The
+nomenclature is by and large identical, but we're aware of
+discrepancies and are attempting to eliminate these. One unavoidable
+origin of these differences is RepeatMasker's extensive post-alignment
+processing (=improvement) of the repeat annotation. To give one of
+many examples, internal sequences of LTR elements can be named after
+the flanking LTRs, even if there is no specific entry for that element
+in the databases.
+
+Quite a few entries in these libraries are not yet in the EMBL
+formatted RepBase Update (RU) because we have not yet submitted them
+formally. Others are missing from RU because it does not include all
+known subfamilies. On the other hand, a few RU entries may be missing
+from RepeatMasker libraries because our releases are lagging and
+longer in between the RU releases (the 'version' file tells you which
+is the last version of RU that is included in the current file). Also,
+we do extra curation, and exclude entries in RU that give rise to
+false positives, would mask genes, or do not appear to be repetitive
+after all.
+
+Arian Smit PhD
+Institute for Systems Biology
+Seattle, WA
+asmit@systemsbiology.org
+
+RepeatMasker software and database development and maintenance are
+currently funded by an NIH/NHGRI R01 grant HG02939-01 to Arian Smit.
+RepBase Update development and maintenance are funded by NIH/NLM grant
+No.2P41LM006252-07A1 to Jerzy Jurka.

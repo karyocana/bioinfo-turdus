@@ -80,13 +80,6 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 
 # RepeatMasker (http://www.repeatmasker.org/RMDownload.html)
 
-# RepeatMasker
-###RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
-###	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
-###	cd /usr/local && \ 
-###	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
-###	tar xvf RepeatMasker-open-4-0-7.tar 
-
 # HMMER (http://hmmer.org/)
 ###RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
 ###	tar xf hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
@@ -96,31 +89,33 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 ###	make check && \
 ###	make install
 
-# For Cross_Match (http://www.phrap.org): local "databases/crossmatch.tar.gz", obtido da caprichosa
+# For Cross_Match -> "databases/crossmatch"
 
-# RMBlast  ->  local "databases/rmblast.tar.gz"
+# RMBlast -> "databases/rmblast/bin"
 
-# WUBlast (licensing) ->  local "databases/wublast.tar.gz",
+# WUBlast -> "databases/wublast_aurelie"
 
-# TRF -> click -> local "databases/trf",
+# TRF "databases/trf"
 
-ENTRYPOINT ["/bin/bash scripts/config_repeatmasker.sh"]
-
-
-
-# RepBaseRepeatMasker -> local "databases/RepBaseRepeatMaskerEdition-20170127.tar.gz",
-#RUN cp RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
-#	cd /usr/local/RepeatMasker && \ 
-#	gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz && \ 
-#	tar xvf RepBaseRepeatMaskerEdition-20170127.tar && \ 
-#	rm RepBaseRepeatMaskerEdition-20170127.tar
-
-    # Dfam (só precisa Updates)
+# Dfam (só precisa Updates)
 #RUN wget http://www.dfam.org/web_download/Release/Dfam_2.0/Dfam.hmm.gz && \ 
 #	cp Dfam.hmm.gz /usr/local/RepeatMasker/Libraries && \ 
 #	cd /usr/local/RepeatMasker/Libraries && \ 
 #	gunzip Dfam.hmm.gz && \ 
 #	rm Dfam.hmm.gz
+
+# RepeatMasker
+RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
+	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
+	cd /usr/local && \ 
+	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
+	tar xvf RepeatMasker-open-4-0-7.tar 
+
+RUN cp /databases/RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
+	cd /usr/local/RepeatMasker && \ 
+	gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz && \ 
+	tar xvf RepBaseRepeatMaskerEdition-20170127.tar && \ 
+	rm RepBaseRepeatMaskerEdition-20170127.tar
 
 # Run RepeatMasker Configure Script (depois que o "databases" estiver apontado e todas as depências estiverem instaladas)
 ###RUN	cd /usr/local/RepeatMasker && \ 
