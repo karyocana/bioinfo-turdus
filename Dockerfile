@@ -81,13 +81,13 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 # RepeatMasker (http://www.repeatmasker.org/RMDownload.html)
 
 # HMMER (http://hmmer.org/)
-###RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
-###	tar xf hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
-###	cd hmmer-3.1b2-linux-intel-x86_64 && \
-###	./configure && \
-###	make && \
-###	make check && \
-###	make install
+RUN wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
+	tar xf hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
+	cd hmmer-3.1b2-linux-intel-x86_64 && \
+	./configure && \
+	make && \
+	make check && \
+	make install
 
 # For Cross_Match -> "databases/crossmatch"
 
@@ -105,11 +105,11 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 #	rm Dfam.hmm.gz
 
 # RepeatMasker
-#RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
-#	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
-#	cd /usr/local && \ 
-#	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
-#	tar xvf RepeatMasker-open-4-0-7.tar 
+RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \ 
+	cp RepeatMasker-open-4-0-7.tar.gz /usr/local && \ 
+	cd /usr/local && \ 
+	gunzip RepeatMasker-open-4-0-7.tar.gz && \ 
+	tar xvf RepeatMasker-open-4-0-7.tar 
 
 # Script for configuring volume and installing repeatmasker 
 #CMD echo "Hello world"  
