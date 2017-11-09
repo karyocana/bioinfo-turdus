@@ -117,6 +117,7 @@ RUN cp /databases/RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMa
 	tar xvf RepBaseRepeatMaskerEdition-20170127.tar && \ 
 	rm RepBaseRepeatMaskerEdition-20170127.tar
 
+
 # Run RepeatMasker Configure Script (depois que o "databases" estiver apontado e todas as depências estiverem instaladas)
 ###RUN	cd /usr/local/RepeatMasker && \ 
 ###	perl ./configure
