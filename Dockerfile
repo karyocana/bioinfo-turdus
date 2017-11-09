@@ -116,6 +116,9 @@ RUN apt-get -y update && apt-get -y install wget --assume-yes apt-utils && apt-g
 #ENTRYPOINT echo "Hello world"  
 ENTRYPOINT ["/bin/echo", "Hello world kary"]  
 
+COPY scripts/install/install_repeatmasker.sh /
+ENTRYPOINT ["/install_repeatmasker.sh"]
+
 #RUN cp /databases/RepBaseRepeatMaskerEdition-20170127.tar.gz /usr/local/RepeatMasker/ && \ 
 #	cd /usr/local/RepeatMasker && \ 
 #	gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz && \ 
